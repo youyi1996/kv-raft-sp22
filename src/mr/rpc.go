@@ -6,8 +6,11 @@ package mr
 // remember to capitalize all names.
 //
 
-import "os"
-import "strconv"
+import (
+	"os"
+	"strconv"
+	"time"
+)
 
 //
 // example to show how to declare the arguments
@@ -24,6 +27,35 @@ type ExampleReply struct {
 
 // Add your RPC definitions here.
 
+type TaskDetail struct {
+	Type             int // 1 for map and 2 for reduce. 0 for invalid tasks
+	State            int // 0 Waiting, 1 Running, 2 Finished
+	DispatchTime     time.Time
+	MapInputPath     string
+	ReduceInputPaths []string
+	ReduceOutputId   int
+}
+
+type TaskRequestArg struct {
+}
+
+type TaskRequestReply struct {
+	Code    int    // if Code!=0, no tasks assigned. the worker should wait for a period of time and then request again.
+	Message string // human readable message for debug purpose.
+	Task    TaskDetail
+}
+
+type TaskStateChangeArg struct {
+	Type           int
+	NewState       int
+	MapInputPath   string
+	ReduceOutputId int
+}
+
+type TaskStateChangeReply struct {
+	Code    int
+	Message string
+}
 
 // Cook up a unique-ish UNIX-domain socket name
 // in /var/tmp, for the coordinator.

@@ -1,18 +1,70 @@
 package mr
 
-import "log"
-import "net"
-import "os"
-import "net/rpc"
-import "net/http"
-
+import (
+	"fmt"
+	"log"
+	"net"
+	"net/http"
+	"net/rpc"
+	"os"
+	"sync"
+	"time"
+)
 
 type Coordinator struct {
 	// Your definitions here.
-
+	MapTasks      []TaskDetail
+	MapTasksMutex sync.Mutex
 }
 
 // Your code here -- RPC handlers for the worker to call.
+
+func (c *Coordinator) RequestTask(args *TaskRequestArg, reply *TaskRequestReply) error {
+
+	// Avoid cocurrent by using mutex
+	c.MapTasksMutex.Lock()
+	defer c.MapTasksMutex.Unlock()
+
+	for id, task := range c.MapTasks {
+		if task.State == 0 {
+			c.MapTasks[id].State = 1
+			reply.Code = 0
+			reply.Message = "OK"
+			reply.Task = task
+			time.Sleep(3 * time.Second)
+			return nil
+		} else {
+			continue
+		}
+	}
+	reply.Code = -1
+	reply.Message = "No more tasks"
+	return nil
+}
+
+func (c *Coordinator) ChangeTaskState(args *TaskStateChangeArg, reply *TaskRequestReply) error {
+
+	// Avoid cocurrent by using mutex
+	c.MapTasksMutex.Lock()
+	defer c.MapTasksMutex.Unlock()
+
+	if args.Type == 1 {
+		for id, task := range c.MapTasks {
+			if task.MapInputPath == args.MapInputPath {
+				c.MapTasks[id].State = 2
+				reply.Code = 0
+				reply.Message = "OK"
+				fmt.Printf("MapTask %v finished!\n", task.MapInputPath)
+				return nil
+			} else {
+				continue
+			}
+		}
+
+	}
+
+	return nil
+}
 
 //
 // an example RPC handler.
@@ -23,7 +75,6 @@ func (c *Coordinator) Example(args *ExampleArgs, reply *ExampleReply) error {
 	reply.Y = args.X + 1
 	return nil
 }
-
 
 //
 // start a thread that listens for RPCs from worker.go
@@ -38,6 +89,7 @@ func (c *Coordinator) server() {
 	if e != nil {
 		log.Fatal("listen error:", e)
 	}
+	fmt.Printf("%v\n", c.MapTasks)
 	go http.Serve(l, nil)
 }
 
@@ -49,7 +101,6 @@ func (c *Coordinator) Done() bool {
 	ret := false
 
 	// Your code here.
-
 
 	return ret
 }
@@ -64,6 +115,13 @@ func MakeCoordinator(files []string, nReduce int) *Coordinator {
 
 	// Your code here.
 
+	for _, filename := range files {
+		task := TaskDetail{
+			Type:         1,
+			MapInputPath: filename,
+		}
+		c.MapTasks = append(c.MapTasks, task)
+	}
 
 	c.server()
 	return &c
