@@ -1,6 +1,7 @@
 package mr
 
 import (
+	"encoding/json"
 	"fmt"
 	"hash/fnv"
 	"io/ioutil"
@@ -70,33 +71,62 @@ func ProceedTask(task TaskDetail, mapf func(string, string) []KeyValue, reducef 
 	if task.Type == 1 {
 		// Map
 
-		file, err := os.Open(task.MapInputPath)
+		err := DoMap(task, mapf)
+
 		if err != nil {
 			log.Fatalf("cannot open %v", task.MapInputPath)
+			return
 		}
-		content, err := ioutil.ReadAll(file)
-		if err != nil {
-			log.Fatalf("cannot read %v", task.MapInputPath)
-		}
-		file.Close()
-		kva := mapf(task.MapInputPath, string(content))
-
-		fmt.Printf("%v", len(kva))
 
 		args := TaskStateChangeArg{
-			MapInputPath: task.MapInputPath,
-			NewState:     2,
+			MapTaskId: task.MapTaskId,
+			NewState:  2,
 		}
 		reply := TaskStateChangeReply{}
 
 		call("Coordinator.ChangeTaskState", &args, &reply)
 
-		// sort.Sort(ByKey(intermediate))
-
-		// oname := "mr-out-" + fmt.Sprint(task.OutputId)
-		// os.Create(oname)
-
 	}
+}
+
+func DoMap(task TaskDetail, mapf func(string, string) []KeyValue) error {
+
+	mapInputFile, err := os.Open(task.MapInputPath)
+	if err != nil {
+		log.Fatalf("cannot open %v", task.MapInputPath)
+	}
+	content, err := ioutil.ReadAll(mapInputFile)
+	if err != nil {
+		log.Fatalf("cannot read %v", task.MapInputPath)
+	}
+	mapInputFile.Close()
+	kva := mapf(task.MapInputPath, string(content))
+
+	kvMatrix := make([][]KeyValue, task.NReduce)
+	for _, kv := range kva {
+		reduceId := ihash(kv.Key) % task.NReduce
+		kvMatrix[reduceId] = append(kvMatrix[reduceId], kv)
+	}
+
+	for reduceId := 0; reduceId < task.NReduce; reduceId++ {
+
+		intermediateTempFile, err := os.CreateTemp("", "tempfile-")
+		if err != nil {
+			log.Fatalf("cannot create a tempfile.")
+		}
+
+		enc := json.NewEncoder(intermediateTempFile)
+		for _, kv := range kvMatrix[reduceId] {
+			err := enc.Encode(&kv)
+			if err != nil {
+				log.Fatalf("Error occurs when generating JSON.")
+			}
+		}
+		os.Rename(intermediateTempFile.Name(), "mr-"+fmt.Sprint(task.MapTaskId)+"-"+fmt.Sprint(reduceId))
+		intermediateTempFile.Close()
+	}
+
+	return nil
 }
 
 func RequestTask() (int, TaskDetail) {

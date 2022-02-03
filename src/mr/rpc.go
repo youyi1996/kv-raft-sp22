@@ -31,9 +31,11 @@ type TaskDetail struct {
 	Type             int // 1 for map and 2 for reduce. 0 for invalid tasks
 	State            int // 0 Waiting, 1 Running, 2 Finished
 	DispatchTime     time.Time
+	MapTaskId        int
 	MapInputPath     string
 	ReduceInputPaths []string
 	ReduceOutputId   int
+	NReduce          int
 }
 
 type TaskRequestArg struct {
@@ -48,7 +50,7 @@ type TaskRequestReply struct {
 type TaskStateChangeArg struct {
 	Type           int
 	NewState       int
-	MapInputPath   string
+	MapTaskId      int
 	ReduceOutputId int
 }
 

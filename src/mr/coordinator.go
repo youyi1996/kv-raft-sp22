@@ -31,7 +31,7 @@ func (c *Coordinator) RequestTask(args *TaskRequestArg, reply *TaskRequestReply)
 			reply.Code = 0
 			reply.Message = "OK"
 			reply.Task = task
-			time.Sleep(3 * time.Second)
+			time.Sleep(1 * time.Second)
 			return nil
 		} else {
 			continue
@@ -49,18 +49,11 @@ func (c *Coordinator) ChangeTaskState(args *TaskStateChangeArg, reply *TaskReque
 	defer c.MapTasksMutex.Unlock()
 
 	if args.Type == 1 {
-		for id, task := range c.MapTasks {
-			if task.MapInputPath == args.MapInputPath {
-				c.MapTasks[id].State = 2
-				reply.Code = 0
-				reply.Message = "OK"
-				fmt.Printf("MapTask %v finished!\n", task.MapInputPath)
-				return nil
-			} else {
-				continue
-			}
-		}
-
+		c.MapTasks[args.MapTaskId].State = 2
+		reply.Code = 0
+		reply.Message = "OK"
+		fmt.Printf("MapTask %v finished!\n", args.MapTaskId)
+		return nil
 	}
 
 	return nil
@@ -115,10 +108,12 @@ func MakeCoordinator(files []string, nReduce int) *Coordinator {
 
 	// Your code here.
 
-	for _, filename := range files {
+	for id, filename := range files {
 		task := TaskDetail{
 			Type:         1,
 			MapInputPath: filename,
+			MapTaskId:    id,
+			NReduce:      nReduce,
 		}
 		c.MapTasks = append(c.MapTasks, task)
 	}
