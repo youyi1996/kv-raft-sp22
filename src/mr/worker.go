@@ -61,8 +61,8 @@ func Worker(mapf func(string, string) []KeyValue,
 			ProceedTask(task, mapf, reducef)
 			// fmt.Printf("Task finished! \n")
 		} else if code == -1 {
-			// fmt.Printf("No task assigned, wait for 10 seconds...\n")
-			time.Sleep(10 * time.Second)
+			// fmt.Printf("No task assigned, wait for 3 seconds...\n")
+			time.Sleep(3 * time.Second)
 		} else if code == -2 {
 			// fmt.Printf("All finished, exiting...\n")
 			os.Exit(0)
