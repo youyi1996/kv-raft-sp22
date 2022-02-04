@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/rpc"
 	"os"
+	"sort"
 	"time"
 )
 
@@ -53,15 +54,18 @@ func Worker(mapf func(string, string) []KeyValue,
 	for true {
 		var code int
 		var task TaskDetail
-		fmt.Printf("Requesting tasks...\n")
+		// fmt.Printf("Requesting tasks...\n")
 		code, task = RequestTask()
 		if code == 0 {
-			fmt.Printf("Task received! %v\n", task)
+			// fmt.Printf("Task received! %v\n", task)
 			ProceedTask(task, mapf, reducef)
-			fmt.Printf("Task finished! \n")
-		} else {
-			fmt.Printf("No task assigned, wait for 10 seconds...\n")
+			// fmt.Printf("Task finished! \n")
+		} else if code == -1 {
+			// fmt.Printf("No task assigned, wait for 10 seconds...\n")
 			time.Sleep(10 * time.Second)
+		} else if code == -2 {
+			// fmt.Printf("All finished, exiting...\n")
+			os.Exit(0)
 		}
 	}
 
@@ -71,16 +75,26 @@ func ProceedTask(task TaskDetail, mapf func(string, string) []KeyValue, reducef 
 	if task.Type == 1 {
 		// Map
 
-		err := DoMap(task, mapf)
-
-		if err != nil {
-			log.Fatalf("cannot open %v", task.MapInputPath)
-			return
-		}
+		intermediate_file_paths := DoMap(task, mapf)
 
 		args := TaskStateChangeArg{
-			MapTaskId: task.MapTaskId,
-			NewState:  2,
+			Type:                     task.Type,
+			MapTaskId:                task.MapTaskId,
+			NewState:                 2,
+			MapIntermediateFilePaths: intermediate_file_paths,
+		}
+		reply := TaskStateChangeReply{}
+
+		call("Coordinator.ChangeTaskState", &args, &reply)
+
+	} else if task.Type == 2 {
+		// Reduce
+		DoReduce(task, reducef)
+
+		args := TaskStateChangeArg{
+			Type:           task.Type,
+			ReduceOutputId: task.ReduceOutputId,
+			NewState:       2,
 		}
 		reply := TaskStateChangeReply{}
 
@@ -89,7 +103,7 @@ func ProceedTask(task TaskDetail, mapf func(string, string) []KeyValue, reducef 
 	}
 }
 
-func DoMap(task TaskDetail, mapf func(string, string) []KeyValue) error {
+func DoMap(task TaskDetail, mapf func(string, string) []KeyValue) []string {
 
 	mapInputFile, err := os.Open(task.MapInputPath)
 	if err != nil {
@@ -108,9 +122,11 @@ func DoMap(task TaskDetail, mapf func(string, string) []KeyValue) error {
 		kvMatrix[reduceId] = append(kvMatrix[reduceId], kv)
 	}
 
+	ret := make([]string, task.NReduce)
+
 	for reduceId := 0; reduceId < task.NReduce; reduceId++ {
 
-		intermediateTempFile, err := os.CreateTemp("", "tempfile-")
+		intermediateTempFile, err := ioutil.TempFile("", "tempfile-")
 		if err != nil {
 			log.Fatalf("cannot create a tempfile.")
 		}
@@ -123,17 +139,65 @@ func DoMap(task TaskDetail, mapf func(string, string) []KeyValue) error {
 			}
 		}
 		os.Rename(intermediateTempFile.Name(), "mr-"+fmt.Sprint(task.MapTaskId)+"-"+fmt.Sprint(reduceId))
+		ret[reduceId] = "mr-" + fmt.Sprint(task.MapTaskId) + "-" + fmt.Sprint(reduceId)
 		intermediateTempFile.Close()
 	}
 
-	return nil
+	return ret
+}
+
+func DoReduce(task TaskDetail, reducef func(string, []string) string) {
+	intermediate := []KeyValue{}
+	for _, filename := range task.ReduceInputPaths {
+		file, err := os.Open(filename)
+		if err != nil {
+			log.Fatalf("cannot open %v", filename)
+		}
+
+		dec := json.NewDecoder(file)
+		for {
+			var kv KeyValue
+			if err := dec.Decode(&kv); err != nil {
+				break
+			}
+			intermediate = append(intermediate, kv)
+		}
+		file.Close()
+	}
+
+	sort.Sort(ByKey(intermediate))
+
+	ofile, _ := ioutil.TempFile("", "tempfile-")
+	oname := "mr-out-" + fmt.Sprint(task.ReduceOutputId)
+	// ofile, _ := os.Create(oname)
+	i := 0
+	for i < len(intermediate) {
+		j := i + 1
+		for j < len(intermediate) && intermediate[j].Key == intermediate[i].Key {
+			j++
+		}
+		values := []string{}
+		for k := i; k < j; k++ {
+			values = append(values, intermediate[k].Value)
+		}
+		output := reducef(intermediate[i].Key, values)
+
+		// this is the correct format for each line of Reduce output.
+		fmt.Fprintf(ofile, "%v %v\n", intermediate[i].Key, output)
+
+		i = j
+	}
+
+	os.Rename(ofile.Name(), oname)
+	ofile.Close()
+
 }
 
 func RequestTask() (int, TaskDetail) {
 	args := TaskRequestArg{}
 	reply := TaskRequestReply{}
 	call("Coordinator.RequestTask", &args, &reply)
-	fmt.Printf("%v\n", reply)
+	// fmt.Printf("%v\n", reply)
 	return reply.Code, reply.Task
 }
 

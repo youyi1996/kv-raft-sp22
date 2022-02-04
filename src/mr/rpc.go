@@ -33,6 +33,7 @@ type TaskDetail struct {
 	DispatchTime     time.Time
 	MapTaskId        int
 	MapInputPath     string
+	MapOutputPaths   []string
 	ReduceInputPaths []string
 	ReduceOutputId   int
 	NReduce          int
@@ -48,10 +49,11 @@ type TaskRequestReply struct {
 }
 
 type TaskStateChangeArg struct {
-	Type           int
-	NewState       int
-	MapTaskId      int
-	ReduceOutputId int
+	Type                     int
+	NewState                 int
+	MapTaskId                int
+	MapIntermediateFilePaths []string
+	ReduceOutputId           int
 }
 
 type TaskStateChangeReply struct {
