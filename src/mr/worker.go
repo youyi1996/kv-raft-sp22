@@ -126,7 +126,7 @@ func DoMap(task TaskDetail, mapf func(string, string) []KeyValue) []string {
 
 	for reduceId := 0; reduceId < task.NReduce; reduceId++ {
 
-		intermediateTempFile, err := ioutil.TempFile("", "tempfile-")
+		intermediateTempFile, err := ioutil.TempFile("tmp", "tempfile-")
 		if err != nil {
 			log.Fatalf("cannot create a tempfile.")
 		}
@@ -167,7 +167,7 @@ func DoReduce(task TaskDetail, reducef func(string, []string) string) {
 
 	sort.Sort(ByKey(intermediate))
 
-	ofile, _ := ioutil.TempFile("", "tempfile-")
+	ofile, _ := ioutil.TempFile("tmp", "tempfile-")
 	oname := "mr-out-" + fmt.Sprint(task.ReduceOutputId)
 	// ofile, _ := os.Create(oname)
 	i := 0
