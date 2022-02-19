@@ -379,7 +379,7 @@ func (rf *Raft) SendHeartBeat() {
 		}
 		go rf.SendOneHeartBeat(peer)
 	}
-	rf.ResetHeartBeatTimer()
+
 }
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
@@ -402,10 +402,10 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		}
 
 	}
-	rf.mu.Unlock()
 
 	// Reset ElectionTimer
 	rf.ResetElectionTimer()
+	rf.mu.Unlock()
 
 }
 
@@ -466,6 +466,7 @@ func (rf *Raft) ticker() {
 		<-rf.ElectionTimer.C
 		rf.mu.Lock()
 		currentRole := rf.Role
+		rf.ResetElectionTimer()
 		rf.mu.Unlock()
 
 		// fmt.Printf("[%v: %v] ElectionTimer Ticked! \n", rf.me, currentRole)
@@ -475,7 +476,6 @@ func (rf *Raft) ticker() {
 		}
 
 		rf.StartElection()
-		rf.ResetElectionTimer()
 	}
 }
 
@@ -490,6 +490,7 @@ func (rf *Raft) heartBeatTicker() {
 
 		rf.mu.Lock()
 		currentRole := rf.Role
+		rf.ResetHeartBeatTimer()
 		rf.mu.Unlock()
 
 		// fmt.Printf("[%v:%v] Heartbeat Ticked!\n", rf.me, currentRole)
@@ -498,7 +499,6 @@ func (rf *Raft) heartBeatTicker() {
 			rf.SendHeartBeat()
 		}
 
-		rf.ResetHeartBeatTimer()
 	}
 }
 
