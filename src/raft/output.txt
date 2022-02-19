@@ -1,0 +1,1431 @@
+Test (2A): initial election ...
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 0, false.
+----[1] Enter GetState().
+----[1] GetState(), 0, false.
+----[2] Enter GetState().
+----[2] GetState(), 0, false.
+[0: 0] ElectionTimer Ticked! 
+[0] Starts an election!
+[0] Sends vote request to 2. {1 0 0 0}
+[0] Sends vote request to 1. {1 0 0 0}
+[2] Received RequestVote from 0. &{1 0 0 0}
+[2, t1] Vote for 0.
+[1] Received RequestVote from 0. &{1 0 0 0}
+[1, t1] Vote for 0.
+[0] Received vote from 2.
+[0] Becomes Leader
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+----[0] Enter GetState().
+----[0] GetState(), 1, true.
+----[1] Enter GetState().
+----[1] GetState(), 1, false.
+----[2] Enter GetState().
+----[2] GetState(), 1, false.
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 1, true.
+----[1] Enter GetState().
+----[1] GetState(), 1, false.
+----[2] Enter GetState().
+----[2] GetState(), 1, false.
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 2!
+[0] Sends Heartbeat to 1!
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[0: 2] ElectionTimer Ticked! 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 2!
+[0] Sends Heartbeat to 1!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 1, true.
+----[1] Enter GetState().
+----[1] GetState(), 1, false.
+----[2] Enter GetState().
+----[2] GetState(), 1, false.
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 2!
+[0] Sends Heartbeat to 1!
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 2!
+[0] Sends Heartbeat to 1!
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Changed role to 0. 
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[1:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[2:t1] Received AppendEntries request, &{1 0 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[2:t1] Changed role to 0. 
+----[0] Enter GetState().
+----[0] GetState(), 1, true.
+----[1] Enter GetState().
+----[1] GetState(), 1, false.
+----[2] Enter GetState().
+----[2] GetState(), 1, false.
+  ... Passed --   3.5  3   34    8508    0
+Test (2A): election after network failure ...
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 2!
+[0] Sends Heartbeat to 1!
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 0, false.
+----[1] Enter GetState().
+----[1] GetState(), 0, false.
+----[2] Enter GetState().
+----[2] GetState(), 0, false.
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1: 0] ElectionTimer Ticked! 
+[1] Starts an election!
+[1] Sends vote request to 2. {2 1 0 0}
+[1] Sends vote request to 0. {2 1 0 0}
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[2: 0] ElectionTimer Ticked! 
+[2] Starts an election!
+[2] Sends vote request to 0. {1 2 0 0}
+[2] Sends vote request to 1. {1 2 0 0}
+[0] Received RequestVote from 2. &{1 2 0 0}
+[0, t1] Vote for 2.
+[1] Received RequestVote from 2. &{1 2 0 0}
+[1, t1] Vote for 2.
+[2] Received vote from 0.
+[2] Becomes Leader
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 0!
+[0:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[1:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[0:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 1, false.
+----[1] Enter GetState().
+----[1] GetState(), 1, false.
+----[2] Enter GetState().
+----[2] GetState(), 1, true.
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 0!
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[2: 0] ElectionTimer Ticked! 
+[2] Starts an election!
+[2] Sends vote request to 0. {2 2 0 0}
+[2] Sends vote request to 1. {2 2 0 0}
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 1, false.
+----[1] Enter GetState().
+----[1] GetState(), 1, false.
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[1: 0] ElectionTimer Ticked! 
+[1] Starts an election!
+[1] Sends vote request to 2. {2 1 0 0}
+[1] Sends vote request to 0. {2 1 0 0}
+[0] Received RequestVote from 1. &{2 1 0 0}
+[0, t2] Vote for 1.
+[1] Received vote from 0.
+[1] Becomes Leader
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[0:t2] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[0:t2] Changed role to 0. 
+[0:0] Heartbeat Ticked!
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 0!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 0!
+[1] Sends Heartbeat to 2!
+[0:t2] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[0:t2] Changed role to 0. 
+[0:0] Heartbeat Ticked!
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 0!
+[1] Sends Heartbeat to 2!
+[0:t2] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[0:t2] Changed role to 0. 
+[2: 2] ElectionTimer Ticked! 
+[0:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 2, false.
+----[1] Enter GetState().
+----[1] GetState(), 2, true.
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[1:t2] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[0:t2] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 0!
+[1] Sends Heartbeat to 2!
+[2:t1] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[0:t2] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[2:t2] Changed role to 0. 
+[0:t2] Changed role to 0. 
+[0:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 0!
+[1] Sends Heartbeat to 2!
+[2:t2] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[0:t2] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[0:t2] Changed role to 0. 
+[2:t2] Changed role to 0. 
+[0:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 0!
+[1] Sends Heartbeat to 2!
+[0:t2] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[2:t2] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[2:t2] Changed role to 0. 
+[0:t2] Changed role to 0. 
+----[0] Enter GetState().
+----[0] GetState(), 2, false.
+----[1] Enter GetState().
+----[1] GetState(), 2, true.
+----[2] Enter GetState().
+----[2] GetState(), 2, false.
+[0:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[0:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 0!
+[1] Sends Heartbeat to 2!
+[0:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1: 2] ElectionTimer Ticked! 
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[0:0] Heartbeat Ticked!
+[0: 0] ElectionTimer Ticked! 
+[0] Starts an election!
+[0] Sends vote request to 1. {3 0 0 0}
+[0] Sends vote request to 2. {3 0 0 0}
+[2:0] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[2: 0] ElectionTimer Ticked! 
+[2] Starts an election!
+[2] Sends vote request to 1. {3 2 0 0}
+[2] Sends vote request to 0. {3 2 0 0}
+[0:1] Heartbeat Ticked!
+[2:1] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[0:1] Heartbeat Ticked!
+[2:1] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[0:1] Heartbeat Ticked!
+[2:1] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[0:1] Heartbeat Ticked!
+[2:1] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[0:1] Heartbeat Ticked!
+[2:1] Heartbeat Ticked!
+[0: 1] ElectionTimer Ticked! 
+[0] Starts an election!
+[0] Sends vote request to 2. {4 0 0 0}
+[0] Sends vote request to 1. {4 0 0 0}
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[0:1] Heartbeat Ticked!
+[2: 1] ElectionTimer Ticked! 
+[2] Starts an election!
+[2] Sends vote request to 0. {4 2 0 0}
+[2] Sends vote request to 1. {4 2 0 0}
+[2:1] Heartbeat Ticked!
+----[0] Enter GetState().
+[1:2] Heartbeat Ticked!
+----[0] GetState(), 4, false.
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 2!
+[1] Sends Heartbeat to 0!
+[0:1] Heartbeat Ticked!
+[2:1] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 0!
+[1] Sends Heartbeat to 2!
+[0:1] Heartbeat Ticked!
+[0: 1] ElectionTimer Ticked! 
+[0] Starts an election!
+[0] Sends vote request to 2. {5 0 0 0}
+[0] Sends vote request to 1. {5 0 0 0}
+[2] Received RequestVote from 0. &{5 0 0 0}
+[2, t5] Vote for 0.
+[0] Received vote from 2.
+[0] Becomes Leader
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 2!
+[0] Sends Heartbeat to 1!
+[2:t5] Received AppendEntries request, &{5 0 0 0 [] 0}. 
+[2:t5] Changed role to 0. 
+[2:0] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 0!
+[1] Sends Heartbeat to 2!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[2:t5] Received AppendEntries request, &{5 0 0 0 [] 0}. 
+[2:t5] Changed role to 0. 
+----[0] Enter GetState().
+----[0] GetState(), 5, true.
+----[2] Enter GetState().
+----[2] GetState(), 5, false.
+[2:0] Heartbeat Ticked!
+[1:2] Heartbeat Ticked!
+[1] Sends Heartbeat to all peers!
+[1] Sends Heartbeat to 0!
+[1] Sends Heartbeat to 2!
+[0:t5] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[2:t5] Received AppendEntries request, &{2 1 0 0 [] 0}. 
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 2!
+[0] Sends Heartbeat to 1!
+[1:t2] Received AppendEntries request, &{5 0 0 0 [] 0}. 
+[1:t5] Changed role to 0. 
+[2:t5] Received AppendEntries request, &{5 0 0 0 [] 0}. 
+[2:t5] Changed role to 0. 
+[2:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 2!
+[0] Sends Heartbeat to 1!
+[1:t5] Received AppendEntries request, &{5 0 0 0 [] 0}. 
+[1:t5] Changed role to 0. 
+[2:t5] Received AppendEntries request, &{5 0 0 0 [] 0}. 
+[2:t5] Changed role to 0. 
+[2:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 5, true.
+----[1] Enter GetState().
+----[1] GetState(), 5, false.
+----[2] Enter GetState().
+----[2] GetState(), 5, false.
+  ... Passed --   5.6  3   74   14798    0
+Test (2A): multiple elections ...
+[0:2] Heartbeat Ticked!
+[0] Sends Heartbeat to all peers!
+[0] Sends Heartbeat to 1!
+[0] Sends Heartbeat to 2!
+[2:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[3:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[5:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[2: 0] ElectionTimer Ticked! 
+[2] Starts an election!
+[2] Sends vote request to 6. {1 2 0 0}
+[2] Sends vote request to 0. {1 2 0 0}
+[2] Sends vote request to 3. {1 2 0 0}
+[2] Sends vote request to 1. {1 2 0 0}
+[2] Sends vote request to 4. {1 2 0 0}
+[2] Sends vote request to 5. {1 2 0 0}
+[0] Received RequestVote from 2. &{1 2 0 0}
+[0, t1] Vote for 2.
+[6] Received RequestVote from 2. &{1 2 0 0}
+[6, t1] Vote for 2.
+[3] Received RequestVote from 2. &{1 2 0 0}
+[3, t1] Vote for 2.
+[1] Received RequestVote from 2. &{1 2 0 0}
+[1, t1] Vote for 2.
+[2] Received vote from 0.
+[2] Received vote from 6.
+[4] Received RequestVote from 2. &{1 2 0 0}
+[4, t1] Vote for 2.
+[5] Received RequestVote from 2. &{1 2 0 0}
+[5, t1] Vote for 2.
+[2] Received vote from 3.
+[2] Becomes Leader
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 6!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 4!
+[2] Sends Heartbeat to 3!
+[2] Sends Heartbeat to 5!
+[0:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[0:t1] Changed role to 0. 
+[6:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[6:t1] Changed role to 0. 
+[1:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[5:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[5:t1] Changed role to 0. 
+[4:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[4:t1] Changed role to 0. 
+[3:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[3:t1] Changed role to 0. 
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[3:0] Heartbeat Ticked!
+[5:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 1, false.
+----[1] Enter GetState().
+----[1] GetState(), 1, false.
+----[2] Enter GetState().
+----[2] GetState(), 1, true.
+----[3] Enter GetState().
+----[3] GetState(), 1, false.
+----[4] Enter GetState().
+----[4] GetState(), 1, false.
+----[5] Enter GetState().
+----[5] GetState(), 1, false.
+----[6] Enter GetState().
+----[6] GetState(), 1, false.
+[1: 0] ElectionTimer Ticked! 
+[1] Starts an election!
+[1] Sends vote request to 0. {6 1 0 0}
+[1] Sends vote request to 2. {6 1 0 0}
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 3!
+[2] Sends Heartbeat to 4!
+[2] Sends Heartbeat to 5!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 6!
+[1:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[4:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[6:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[4:t1] Changed role to 0. 
+[6:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[3:0] Heartbeat Ticked!
+[0: 2] ElectionTimer Ticked! 
+[5:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 4!
+[2] Sends Heartbeat to 5!
+[2] Sends Heartbeat to 3!
+[2] Sends Heartbeat to 6!
+[1:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[4:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[4:t1] Changed role to 0. 
+[6:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[6:t1] Changed role to 0. 
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[3: 0] ElectionTimer Ticked! 
+[3] Starts an election!
+[3] Sends vote request to 5. {2 3 0 0}
+[3] Sends vote request to 1. {2 3 0 0}
+[3] Sends vote request to 2. {2 3 0 0}
+[3] Sends vote request to 6. {2 3 0 0}
+[3] Sends vote request to 0. {2 3 0 0}
+[3] Sends vote request to 4. {2 3 0 0}
+[3:1] Heartbeat Ticked!
+[5:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[5: 0] ElectionTimer Ticked! 
+[5] Starts an election!
+[5] Sends vote request to 4. {2 5 0 0}
+[5] Sends vote request to 1. {2 5 0 0}
+[5] Sends vote request to 2. {2 5 0 0}
+[5] Sends vote request to 3. {2 5 0 0}
+[5] Sends vote request to 0. {2 5 0 0}
+[5] Sends vote request to 6. {2 5 0 0}
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 3!
+[2] Sends Heartbeat to 5!
+[2] Sends Heartbeat to 4!
+[2] Sends Heartbeat to 6!
+[1:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[1:t1] Changed role to 0. 
+[6:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[4:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[4:t1] Changed role to 0. 
+[6:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[5:1] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+----[1] Enter GetState().
+----[1] GetState(), 1, false.
+----[2] Enter GetState().
+----[2] GetState(), 1, true.
+----[4] Enter GetState().
+----[4] GetState(), 1, false.
+----[6] Enter GetState().
+----[6] GetState(), 1, false.
+[2: 0] ElectionTimer Ticked! 
+[2] Starts an election!
+[2] Sends vote request to 1. {6 2 0 0}
+[2] Sends vote request to 0. {6 2 0 0}
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 3!
+[2] Sends Heartbeat to 4!
+[2] Sends Heartbeat to 5!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 6!
+[5:t2] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[3:t2] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[6:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[6:t1] Changed role to 0. 
+[1:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[5:1] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[2: 2] ElectionTimer Ticked! 
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 6!
+[2] Sends Heartbeat to 5!
+[2] Sends Heartbeat to 4!
+[2] Sends Heartbeat to 3!
+[5:t2] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[6:t1] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[6:t1] Changed role to 0. 
+[3:t2] Received AppendEntries request, &{1 2 0 0 [] 0}. 
+[1:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[5:1] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[0: 0] ElectionTimer Ticked! 
+[0] Starts an election!
+[0] Sends vote request to 6. {2 0 0 0}
+[0] Sends vote request to 5. {2 0 0 0}
+[0] Sends vote request to 1. {2 0 0 0}
+[0] Sends vote request to 3. {2 0 0 0}
+[0] Sends vote request to 2. {2 0 0 0}
+[0] Sends vote request to 4. {2 0 0 0}
+----[2] Enter GetState().
+----[2] GetState(), 1, true.
+----[3] Enter GetState().
+----[3] GetState(), 2, false.
+----[5] Enter GetState().
+----[5] GetState(), 2, false.
+----[6] Enter GetState().
+[4: 0] ElectionTimer Ticked! 
+[4] Starts an election!
+----[6] GetState(), 1, false.
+[4] Sends vote request to 6. {2 4 0 0}
+[4] Sends vote request to 0. {2 4 0 0}
+[4] Sends vote request to 2. {2 4 0 0}
+[4] Sends vote request to 3. {2 4 0 0}
+[4] Sends vote request to 1. {2 4 0 0}
+[4] Sends vote request to 5. {2 4 0 0}
+[6] Received RequestVote from 4. &{2 4 0 0}
+[6, t2] Vote for 4.
+[0] Received RequestVote from 4. &{2 4 0 0}
+[0, t2] No vote for 4 due to already voted for 0.
+[5] Received RequestVote from 4. &{2 4 0 0}
+[5, t2] No vote for 4 due to already voted for 5.
+[4] Received vote from 6.
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 4!
+[2] Sends Heartbeat to 6!
+[2] Sends Heartbeat to 5!
+[2] Sends Heartbeat to 3!
+[0:1] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[5:1] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[4:1] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 6!
+[2] Sends Heartbeat to 5!
+[2] Sends Heartbeat to 3!
+[2] Sends Heartbeat to 4!
+[0:1] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[5:1] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[4:1] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[5: 1] ElectionTimer Ticked! 
+[5] Starts an election!
+[5] Sends vote request to 6. {3 5 0 0}
+[5] Sends vote request to 1. {3 5 0 0}
+[5] Sends vote request to 2. {3 5 0 0}
+[5] Sends vote request to 0. {3 5 0 0}
+[5] Sends vote request to 3. {3 5 0 0}
+[5] Sends vote request to 4. {3 5 0 0}
+[6] Received RequestVote from 5. &{3 5 0 0}
+[6, t3] Vote for 5.
+[0] Received RequestVote from 5. &{3 5 0 0}
+[0, t3] Vote for 5.
+[4] Received RequestVote from 5. &{3 5 0 0}
+[4, t3] Vote for 5.
+[5] Received vote from 0.
+[5] Received vote from 6.
+[5] Received vote from 4.
+[5] Becomes Leader
+[5] Sends Heartbeat to all peers!
+[5] Sends Heartbeat to 6!
+[5] Sends Heartbeat to 2!
+[5] Sends Heartbeat to 1!
+[5] Sends Heartbeat to 4!
+[5] Sends Heartbeat to 0!
+[5] Sends Heartbeat to 3!
+[6:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[6:t3] Changed role to 0. 
+[4:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[4:t3] Changed role to 0. 
+[0:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[0:t3] Changed role to 0. 
+[2:2] Heartbeat Ticked!
+[2] Sends Heartbeat to all peers!
+[2] Sends Heartbeat to 0!
+[2] Sends Heartbeat to 1!
+[2] Sends Heartbeat to 3!
+[2] Sends Heartbeat to 5!
+[2] Sends Heartbeat to 4!
+[2] Sends Heartbeat to 6!
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[3: 1] ElectionTimer Ticked! 
+[3] Starts an election!
+[3] Sends vote request to 0. {3 3 0 0}
+[3] Sends vote request to 1. {3 3 0 0}
+[3] Sends vote request to 2. {3 3 0 0}
+[3] Sends vote request to 6. {3 3 0 0}
+[3] Sends vote request to 5. {3 3 0 0}
+[3] Sends vote request to 4. {3 3 0 0}
+----[0] Enter GetState().
+----[0] GetState(), 3, false.
+----[4] Enter GetState().
+----[4] GetState(), 3, false.
+----[5] Enter GetState().
+----[5] GetState(), 3, true.
+----[6] Enter GetState().
+----[6] GetState(), 3, false.
+[5:2] Heartbeat Ticked!
+[5] Sends Heartbeat to all peers!
+[5] Sends Heartbeat to 0!
+[5] Sends Heartbeat to 2!
+[5] Sends Heartbeat to 1!
+[5] Sends Heartbeat to 3!
+[5] Sends Heartbeat to 4!
+[5] Sends Heartbeat to 6!
+[0:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[0:t3] Changed role to 0. 
+[2:t1] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[2:t3] Changed role to 0. 
+[6:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[6:t3] Changed role to 0. 
+[2:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[1: 0] ElectionTimer Ticked! 
+[1] Starts an election!
+[1] Sends vote request to 0. {2 1 0 0}
+[1] Sends vote request to 6. {2 1 0 0}
+[1] Sends vote request to 2. {2 1 0 0}
+[1] Sends vote request to 3. {2 1 0 0}
+[1] Sends vote request to 4. {2 1 0 0}
+[1] Sends vote request to 5. {2 1 0 0}
+[5:2] Heartbeat Ticked!
+[5] Sends Heartbeat to all peers!
+[5] Sends Heartbeat to 0!
+[5] Sends Heartbeat to 1!
+[5] Sends Heartbeat to 3!
+[5] Sends Heartbeat to 4!
+[5] Sends Heartbeat to 2!
+[5] Sends Heartbeat to 6!
+[0:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[0:t3] Changed role to 0. 
+[2:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[2:t3] Changed role to 0. 
+[6:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[6:t3] Changed role to 0. 
+[2:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[5:2] Heartbeat Ticked!
+[5] Sends Heartbeat to all peers!
+[5] Sends Heartbeat to 0!
+[5] Sends Heartbeat to 3!
+[5] Sends Heartbeat to 1!
+[5] Sends Heartbeat to 4!
+[5] Sends Heartbeat to 6!
+[5] Sends Heartbeat to 2!
+[0:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[0:t3] Changed role to 0. 
+[2:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[2:t3] Changed role to 0. 
+[6:t3] Received AppendEntries request, &{3 5 0 0 [] 0}. 
+[6:t3] Changed role to 0. 
+----[0] Enter GetState().
+----[0] GetState(), 3, false.
+----[2] Enter GetState().
+----[2] GetState(), 3, false.
+----[5] Enter GetState().
+----[5] GetState(), 3, true.
+----[6] Enter GetState().
+----[6] GetState(), 3, false.
+[2:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[4: 0] ElectionTimer Ticked! 
+[4] Starts an election!
+[4] Sends vote request to 0. {4 4 0 0}
+[4] Sends vote request to 6. {4 4 0 0}
+[4] Sends vote request to 1. {4 4 0 0}
+[4] Sends vote request to 2. {4 4 0 0}
+[4] Sends vote request to 3. {4 4 0 0}
+[4] Sends vote request to 5. {4 4 0 0}
+[6] Received RequestVote from 4. &{4 4 0 0}
+[6, t4] Vote for 4.
+[2] Received RequestVote from 4. &{4 4 0 0}
+[2, t4] Vote for 4.
+[5] Received RequestVote from 4. &{4 4 0 0}
+[3] Received RequestVote from 4. &{4 4 0 0}
+[5, t4] Vote for 4.
+[3, t4] Vote for 4.
+[4] Received vote from 2.
+[4] Received vote from 6.
+[4] Received vote from 3.
+[4] Becomes Leader
+[4] Sends Heartbeat to all peers!
+[4] Sends Heartbeat to 5!
+[4] Sends Heartbeat to 1!
+[4] Sends Heartbeat to 0!
+[4] Sends Heartbeat to 2!
+[4] Sends Heartbeat to 3!
+[4] Sends Heartbeat to 6!
+[5:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[5:t4] Changed role to 0. 
+[2:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[2:t4] Changed role to 0. 
+[3:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[3:t4] Changed role to 0. 
+[6:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[6:t4] Changed role to 0. 
+[5:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[3:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[4:2] Heartbeat Ticked!
+[4] Sends Heartbeat to all peers!
+[4] Sends Heartbeat to 0!
+[4] Sends Heartbeat to 1!
+[4] Sends Heartbeat to 2!
+[4] Sends Heartbeat to 5!
+[4] Sends Heartbeat to 6!
+[4] Sends Heartbeat to 3!
+[2:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[5:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[2:t4] Changed role to 0. 
+[3:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[5:t4] Changed role to 0. 
+[3:t4] Changed role to 0. 
+[6:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[6:t4] Changed role to 0. 
+[5:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[3:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[4:2] Heartbeat Ticked!
+[4] Sends Heartbeat to all peers!
+[4] Sends Heartbeat to 2!
+[4] Sends Heartbeat to 0!
+[4] Sends Heartbeat to 6!
+[4] Sends Heartbeat to 5!
+[4] Sends Heartbeat to 1!
+[4] Sends Heartbeat to 3!
+[6:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[6:t4] Changed role to 0. 
+[2:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[2:t4] Changed role to 0. 
+[5:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[5:t4] Changed role to 0. 
+[3:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[3:t4] Changed role to 0. 
+[0: 0] ElectionTimer Ticked! 
+[0] Starts an election!
+[0] Sends vote request to 6. {4 0 0 0}
+[0] Sends vote request to 5. {4 0 0 0}
+[0] Sends vote request to 4. {4 0 0 0}
+[0] Sends vote request to 3. {4 0 0 0}
+[0] Sends vote request to 2. {4 0 0 0}
+[0] Sends vote request to 1. {4 0 0 0}
+----[2] Enter GetState().
+----[2] GetState(), 4, false.
+----[3] Enter GetState().
+----[3] GetState(), 4, false.
+----[4] Enter GetState().
+----[4] GetState(), 4, true.
+----[5] Enter GetState().
+----[5] GetState(), 4, false.
+----[6] Enter GetState().
+----[6] GetState(), 4, false.
+[5:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[0:1] Heartbeat Ticked!
+[3:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[4:2] Heartbeat Ticked!
+[4] Sends Heartbeat to all peers!
+[4] Sends Heartbeat to 0!
+[4] Sends Heartbeat to 1!
+[4] Sends Heartbeat to 2!
+[4] Sends Heartbeat to 6!
+[4] Sends Heartbeat to 5!
+[4] Sends Heartbeat to 3!
+[0:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[0:t4] Changed role to 0. 
+[6:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[6:t4] Changed role to 0. 
+[5:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[5:t4] Changed role to 0. 
+[5:0] Heartbeat Ticked!
+[1: 1] ElectionTimer Ticked! 
+[1] Starts an election!
+[1] Sends vote request to 0. {3 1 0 0}
+[1] Sends vote request to 6. {3 1 0 0}
+[1] Sends vote request to 3. {3 1 0 0}
+[1] Sends vote request to 4. {3 1 0 0}
+[1] Sends vote request to 2. {3 1 0 0}
+[1] Sends vote request to 5. {3 1 0 0}
+[2:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[3:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[4:2] Heartbeat Ticked!
+[4] Sends Heartbeat to all peers!
+[4] Sends Heartbeat to 0!
+[4] Sends Heartbeat to 1!
+[4] Sends Heartbeat to 2!
+[4] Sends Heartbeat to 3!
+[4] Sends Heartbeat to 5!
+[4] Sends Heartbeat to 6!
+[0:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[0:t4] Changed role to 0. 
+[6:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[5:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[5:t4] Changed role to 0. 
+[6:t4] Changed role to 0. 
+[5:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 4, false.
+----[4] Enter GetState().
+----[4] GetState(), 4, true.
+----[5] Enter GetState().
+----[5] GetState(), 4, false.
+----[6] Enter GetState().
+----[6] GetState(), 4, false.
+[2:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[3:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[4:2] Heartbeat Ticked!
+[4] Sends Heartbeat to all peers!
+[4] Sends Heartbeat to 0!
+[4] Sends Heartbeat to 1!
+[4] Sends Heartbeat to 3!
+[4] Sends Heartbeat to 5!
+[4] Sends Heartbeat to 2!
+[4] Sends Heartbeat to 6!
+[0:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[0:t4] Changed role to 0. 
+[5:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[2:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[2:t4] Changed role to 0. 
+[5:t4] Changed role to 0. 
+[5:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[3:0] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[4:2] Heartbeat Ticked!
+[4] Sends Heartbeat to all peers!
+[4] Sends Heartbeat to 0!
+[4] Sends Heartbeat to 1!
+[4] Sends Heartbeat to 6!
+[4] Sends Heartbeat to 2!
+[4] Sends Heartbeat to 5!
+[4] Sends Heartbeat to 3!
+[0:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[0:t4] Changed role to 0. 
+[2:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[2:t4] Changed role to 0. 
+[5:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[5:t4] Changed role to 0. 
+[5:0] Heartbeat Ticked!
+[4: 2] ElectionTimer Ticked! 
+[3: 0] ElectionTimer Ticked! 
+[3] Starts an election!
+[3] Sends vote request to 0. {5 3 0 0}
+[3] Sends vote request to 6. {5 3 0 0}
+[3] Sends vote request to 2. {5 3 0 0}
+[3] Sends vote request to 4. {5 3 0 0}
+[3] Sends vote request to 5. {5 3 0 0}
+[3] Sends vote request to 1. {5 3 0 0}
+[2:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[6:0] Heartbeat Ticked!
+[4:2] Heartbeat Ticked!
+[4] Sends Heartbeat to all peers!
+[4] Sends Heartbeat to 0!
+[4] Sends Heartbeat to 1!
+[4] Sends Heartbeat to 3!
+[4] Sends Heartbeat to 5!
+[4] Sends Heartbeat to 2!
+[4] Sends Heartbeat to 6!
+[0:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[0:t4] Changed role to 0. 
+[5:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[5:t4] Changed role to 0. 
+[2:t4] Received AppendEntries request, &{4 4 0 0 [] 0}. 
+[2:t4] Changed role to 0. 
+[5:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 4, false.
+----[2] Enter GetState().
+----[2] GetState(), 4, false.
+----[4] Enter GetState().
+----[4] GetState(), 4, true.
+----[5] Enter GetState().
+----[5] GetState(), 4, false.
+[6: 0] ElectionTimer Ticked! 
+[6] Starts an election!
+[6] Sends vote request to 4. {5 6 0 0}
+[6] Sends vote request to 5. {5 6 0 0}
+[6] Sends vote request to 0. {5 6 0 0}
+[6] Sends vote request to 1. {5 6 0 0}
+[6] Sends vote request to 2. {5 6 0 0}
+[6] Sends vote request to 3. {5 6 0 0}
+[4] Received RequestVote from 6. &{5 6 0 0}
+[2] Received RequestVote from 6. &{5 6 0 0}
+[4, t5] Vote for 6.
+[2, t5] Vote for 6.
+[5] Received RequestVote from 6. &{5 6 0 0}
+[5, t5] Vote for 6.
+[0] Received RequestVote from 6. &{5 6 0 0}
+[0, t5] Vote for 6.
+[6] Received vote from 2.
+[6] Received vote from 4.
+[6] Received vote from 5.
+[6] Becomes Leader
+[6] Sends Heartbeat to all peers!
+[6] Sends Heartbeat to 4!
+[6] Sends Heartbeat to 1!
+[6] Sends Heartbeat to 2!
+[6] Sends Heartbeat to 0!
+[6] Sends Heartbeat to 5!
+[6] Sends Heartbeat to 3!
+[2:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[2:t5] Changed role to 0. 
+[4:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[4:t5] Changed role to 0. 
+[0:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[0:t5] Changed role to 0. 
+[5:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[5:t5] Changed role to 0. 
+[2:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[1: 1] ElectionTimer Ticked! 
+[1] Starts an election!
+[1] Sends vote request to 6. {4 1 0 0}
+[1] Sends vote request to 2. {4 1 0 0}
+[1] Sends vote request to 3. {4 1 0 0}
+[1] Sends vote request to 4. {4 1 0 0}
+[1] Sends vote request to 0. {4 1 0 0}
+[1] Sends vote request to 5. {4 1 0 0}
+[5:0] Heartbeat Ticked!
+[6:2] Heartbeat Ticked!
+[6] Sends Heartbeat to all peers!
+[6] Sends Heartbeat to 0!
+[6] Sends Heartbeat to 2!
+[6] Sends Heartbeat to 4!
+[6] Sends Heartbeat to 5!
+[6] Sends Heartbeat to 1!
+[6] Sends Heartbeat to 3!
+[2:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[2:t5] Changed role to 0. 
+[0:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[0:t5] Changed role to 0. 
+[5:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[5:t5] Changed role to 0. 
+[4:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[4:t5] Changed role to 0. 
+[2:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[3:1] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[5:0] Heartbeat Ticked!
+[6:2] Heartbeat Ticked!
+[6] Sends Heartbeat to all peers!
+[6] Sends Heartbeat to 0!
+[6] Sends Heartbeat to 1!
+[6] Sends Heartbeat to 2!
+[6] Sends Heartbeat to 4!
+[6] Sends Heartbeat to 3!
+[6] Sends Heartbeat to 5!
+[0:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[0:t5] Changed role to 0. 
+[2:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[2:t5] Changed role to 0. 
+[4:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[4:t5] Changed role to 0. 
+[5:t5] Received AppendEntries request, &{5 6 0 0 [] 0}. 
+[5:t5] Changed role to 0. 
+[2:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 5, false.
+----[2] Enter GetState().
+----[2] GetState(), 5, false.
+----[4] Enter GetState().
+----[4] GetState(), 5, false.
+----[5] Enter GetState().
+----[5] GetState(), 5, false.
+----[6] Enter GetState().
+----[6] GetState(), 5, true.
+[0:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[1: 1] ElectionTimer Ticked! 
+[1] Starts an election!
+[1] Sends vote request to 5. {5 1 0 0}
+[1] Sends vote request to 6. {5 1 0 0}
+[1] Sends vote request to 0. {5 1 0 0}
+[1] Sends vote request to 2. {5 1 0 0}
+[1] Sends vote request to 4. {5 1 0 0}
+[1] Sends vote request to 3. {5 1 0 0}
+[3:1] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[5:0] Heartbeat Ticked!
+[3: 1] ElectionTimer Ticked! 
+[3] Starts an election!
+[3] Sends vote request to 6. {6 3 0 0}
+[3] Sends vote request to 1. {6 3 0 0}
+[3] Sends vote request to 5. {6 3 0 0}
+[3] Sends vote request to 2. {6 3 0 0}
+[3] Sends vote request to 0. {6 3 0 0}
+[3] Sends vote request to 4. {6 3 0 0}
+[5] Received RequestVote from 3. &{6 3 0 0}
+[0] Received RequestVote from 3. &{6 3 0 0}
+[0, t6] Vote for 3.
+[5, t6] Vote for 3.
+[2] Received RequestVote from 3. &{6 3 0 0}
+[2, t6] Vote for 3.
+[3] Received vote from 0.
+[3] Received vote from 5.
+[3] Received vote from 2.
+[3] Becomes Leader
+[3] Sends Heartbeat to all peers!
+[3] Sends Heartbeat to 0!
+[3] Sends Heartbeat to 4!
+[3] Sends Heartbeat to 6!
+[3] Sends Heartbeat to 5!
+[3] Sends Heartbeat to 1!
+[3] Sends Heartbeat to 2!
+[0:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[0:t6] Changed role to 0. 
+[5:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[5:t6] Changed role to 0. 
+[2:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[2:t6] Changed role to 0. 
+[6:2] Heartbeat Ticked!
+[6] Sends Heartbeat to all peers!
+[6] Sends Heartbeat to 0!
+[6] Sends Heartbeat to 2!
+[6] Sends Heartbeat to 4!
+[6] Sends Heartbeat to 5!
+[6] Sends Heartbeat to 1!
+[6] Sends Heartbeat to 3!
+[2:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[5:0] Heartbeat Ticked!
+[3:2] Heartbeat Ticked!
+[3] Sends Heartbeat to all peers!
+[3] Sends Heartbeat to 0!
+[3] Sends Heartbeat to 1!
+[3] Sends Heartbeat to 2!
+[3] Sends Heartbeat to 4!
+[3] Sends Heartbeat to 5!
+[3] Sends Heartbeat to 6!
+[0:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[0:t6] Changed role to 0. 
+[2:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[2:t6] Changed role to 0. 
+[5:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[5:t6] Changed role to 0. 
+[6:2] Heartbeat Ticked!
+[6] Sends Heartbeat to all peers!
+[6] Sends Heartbeat to 2!
+[6] Sends Heartbeat to 4!
+[6] Sends Heartbeat to 5!
+[6] Sends Heartbeat to 3!
+[6] Sends Heartbeat to 0!
+[6] Sends Heartbeat to 1!
+[2:0] Heartbeat Ticked!
+[1:1] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[6: 2] ElectionTimer Ticked! 
+[5:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 6, false.
+----[2] Enter GetState().
+----[2] GetState(), 6, false.
+----[3] Enter GetState().
+----[3] GetState(), 6, true.
+----[5] Enter GetState().
+----[5] GetState(), 6, false.
+[3:2] Heartbeat Ticked!
+[3] Sends Heartbeat to all peers!
+[3] Sends Heartbeat to 0!
+[3] Sends Heartbeat to 1!
+[3] Sends Heartbeat to 2!
+[3] Sends Heartbeat to 4!
+[3] Sends Heartbeat to 6!
+[3] Sends Heartbeat to 5!
+[6:t5] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[6:t6] Changed role to 0. 
+[2:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[2:t6] Changed role to 0. 
+[0:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[0:t6] Changed role to 0. 
+[5:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[5:t6] Changed role to 0. 
+[1:t5] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[1:t6] Changed role to 0. 
+[4:t5] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[4:t6] Changed role to 0. 
+[6:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[5:0] Heartbeat Ticked!
+[3:2] Heartbeat Ticked!
+[3] Sends Heartbeat to all peers!
+[3] Sends Heartbeat to 0!
+[3] Sends Heartbeat to 5!
+[3] Sends Heartbeat to 4!
+[3] Sends Heartbeat to 6!
+[3] Sends Heartbeat to 1!
+[3] Sends Heartbeat to 2!
+[0:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[0:t6] Changed role to 0. 
+[4:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[4:t6] Changed role to 0. 
+[5:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[5:t6] Changed role to 0. 
+[1:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[1:t6] Changed role to 0. 
+[6:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[2:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[6:t6] Changed role to 0. 
+[2:t6] Changed role to 0. 
+[6:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[4:0] Heartbeat Ticked!
+[5:0] Heartbeat Ticked!
+[3: 2] ElectionTimer Ticked! 
+[3:2] Heartbeat Ticked!
+[3] Sends Heartbeat to all peers!
+[3] Sends Heartbeat to 0!
+[3] Sends Heartbeat to 4!
+[3] Sends Heartbeat to 1!
+[3] Sends Heartbeat to 6!
+[3] Sends Heartbeat to 2!
+[3] Sends Heartbeat to 5!
+[0:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[0:t6] Changed role to 0. 
+[4:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[4:t6] Changed role to 0. 
+[1:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[1:t6] Changed role to 0. 
+[5:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[5:t6] Changed role to 0. 
+[6:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[6:t6] Changed role to 0. 
+[2:t6] Received AppendEntries request, &{6 3 0 0 [] 0}. 
+[2:t6] Changed role to 0. 
+[6:0] Heartbeat Ticked!
+[2:0] Heartbeat Ticked!
+[1:0] Heartbeat Ticked!
+[0:0] Heartbeat Ticked!
+----[0] Enter GetState().
+----[0] GetState(), 6, false.
+----[1] Enter GetState().
+----[1] GetState(), 6, false.
+----[2] Enter GetState().
+----[2] GetState(), 6, false.
+----[3] Enter GetState().
+----[3] GetState(), 6, true.
+----[4] Enter GetState().
+----[4] GetState(), 6, false.
+----[5] Enter GetState().
+----[5] GetState(), 6, false.
+----[6] Enter GetState().
+----[6] GetState(), 6, false.
+  ... Passed --   5.6  7  282   53436    0
+PASS
+ok  	6.824/raft	14.803s

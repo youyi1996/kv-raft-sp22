@@ -18,7 +18,6 @@ package raft
 //
 
 import (
-	"fmt"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -84,7 +83,8 @@ type Raft struct {
 	NextIndex  []int
 	MatchIndex []int
 
-	ElectionTimer *time.Timer
+	ElectionTimer  *time.Timer
+	HeartBeatTimer *time.Timer
 
 	NumReceivedVotes int
 }
@@ -96,14 +96,15 @@ func (rf *Raft) GetState() (int, bool) {
 	var term int
 	var isleader bool
 	// Your code here (2A).
+
+	// fmt.Printf("----[%v] Enter GetState().\n", rf.me)
+
 	rf.mu.Lock()
 	term = rf.CurrentTerm
-	if rf.NumReceivedVotes > len(rf.peers) {
-		isleader = true
-	} else {
-		isleader = false
-	}
+	isleader = (rf.Role == 2)
 	rf.mu.Unlock()
+	// fmt.Printf("----[%v] GetState(), %v, %v.\n", rf.me, term, isleader)
+
 	return term, isleader
 }
 
@@ -202,9 +203,15 @@ type AppendEntriesReply struct {
 }
 
 func (rf *Raft) ResetElectionTimer() {
-	rf.mu.Lock()
+	// rf.mu.Lock()
 	rf.ElectionTimer.Reset(time.Duration(rand.Intn(1000)+300) * time.Millisecond)
-	rf.mu.Unlock()
+	// rf.mu.Unlock()
+}
+
+func (rf *Raft) ResetHeartBeatTimer() {
+	// rf.mu.Lock()
+	rf.HeartBeatTimer.Reset(200 * time.Millisecond)
+	// rf.mu.Unlock()
 }
 
 //
@@ -212,8 +219,46 @@ func (rf *Raft) ResetElectionTimer() {
 //
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	// Your code here (2A, 2B).
-	fmt.Printf("[%v] Received RequestVote from %v.\n", rf.me, args.CandidateId)
-	rf.ResetElectionTimer()
+	// fmt.Printf("[%v] Received RequestVote from %v. %v\n", rf.me, args.CandidateId, args)
+
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+
+	if args.Term > rf.CurrentTerm {
+		rf.CurrentTerm = args.Term
+		rf.VotedFor = -1
+	}
+
+	if args.Term < rf.CurrentTerm {
+		// fmt.Printf("[%v, t%v] No vote for %v due to outdated term.\n", rf.me, rf.CurrentTerm, args.CandidateId)
+
+		reply.VoteGranted = false
+		reply.Term = rf.CurrentTerm
+		return
+	}
+
+	if rf.VotedFor != -1 && args.CandidateId != rf.VotedFor {
+		// fmt.Printf("[%v, t%v] No vote for %v due to already voted for %v.\n", rf.me, rf.CurrentTerm, args.CandidateId, rf.VotedFor)
+
+		reply.VoteGranted = false
+		reply.Term = rf.CurrentTerm
+		return
+	}
+
+	if (args.Term > rf.CurrentTerm) || (args.Term == rf.CurrentTerm && args.LastLogIndex >= rf.LastApplied) {
+		// fmt.Printf("[%v, t%v] Vote for %v.\n", rf.me, rf.CurrentTerm, args.CandidateId)
+
+		rf.Role = 0
+
+		reply.VoteGranted = true
+		reply.Term = rf.CurrentTerm
+
+	} else {
+		// fmt.Printf("[%v, t%v] No vote for %v due to outdated logs.\n", rf.me, rf.CurrentTerm, args.CandidateId)
+
+		reply.VoteGranted = false
+		reply.Term = rf.CurrentTerm
+	}
 }
 
 //
@@ -262,26 +307,39 @@ func (rf *Raft) AskForOneVote(server int) {
 	rf.mu.Unlock()
 
 	reply := RequestVoteReply{}
+
+	// fmt.Printf("[%v] Sends vote request to %v. %v\n", rf.me, server, args)
+
 	if rf.sendRequestVote(server, &args, &reply) {
 		rf.mu.Lock()
-
 		// Outdated reply should be dropped.
-		if args.Term == rf.CurrentTerm {
+		if args.Term == rf.CurrentTerm && rf.Role == 1 {
 			if reply.VoteGranted {
+				// fmt.Printf("[%v] Received vote from %v.\n", rf.me, server)
 				rf.NumReceivedVotes += 1
-				if rf.NumReceivedVotes > len(rf.peers) {
+				if rf.NumReceivedVotes > len(rf.peers)/2 {
+					// fmt.Printf("[%v] Becomes Leader\n", rf.me)
 					rf.Role = 2
+					rf.SendHeartBeat()
 				}
-
 			}
 		}
 		rf.mu.Unlock()
+		// fmt.Printf("[%v] AskForOneVote: Unlocked!\n", rf.me)
+
 	}
 }
 
 func (rf *Raft) StartElection() {
 
-	fmt.Println("Server " + fmt.Sprint(rf.me) + " starts an election!")
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	// fmt.Printf("[%v] Starts an election!\n", rf.me)
+
+	rf.Role = 1
+	rf.CurrentTerm += 1
+	rf.VotedFor = rf.me
+	rf.NumReceivedVotes = 1
 
 	for peer := range rf.peers {
 		if peer == rf.me {
@@ -294,7 +352,10 @@ func (rf *Raft) StartElection() {
 }
 
 func (rf *Raft) SendOneHeartBeat(server int) {
+	// fmt.Printf("[%v] Enter SendOneHeartBeat! Wait for unlock...\n", rf.me)
 	rf.mu.Lock()
+	// fmt.Printf("[%v] Unlocked!\n", rf.me)
+
 	args := AppendEntriesArgs{
 		Term:         rf.CurrentTerm,
 		LeaderId:     rf.me,
@@ -305,31 +366,46 @@ func (rf *Raft) SendOneHeartBeat(server int) {
 	}
 	reply := AppendEntriesReply{}
 	rf.mu.Unlock()
-	rf.peers[server].Call("Raft.AppendEntries", args, reply)
+	// fmt.Printf("[%v] Sends Heartbeat to %v!\n", rf.me, server)
+	rf.peers[server].Call("Raft.AppendEntries", &args, &reply)
 
 }
 
 func (rf *Raft) SendHeartBeat() {
+	// fmt.Printf("[%v] Sends Heartbeat to all peers!\n", rf.me)
 	for peer := range rf.peers {
+		if peer == rf.me {
+			continue
+		}
 		go rf.SendOneHeartBeat(peer)
 	}
+	rf.ResetHeartBeatTimer()
 }
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
-	defer rf.mu.Unlock()
+	// fmt.Printf("[%v:t%v] Received AppendEntries request, %v. \n", rf.me, rf.CurrentTerm, args)
+
 	if args.Term < rf.CurrentTerm {
 		reply.Success = false
 		reply.Term = rf.CurrentTerm
+
 	} else {
 		// Change its role to follower when receiving a valid AppendEntries request.
 		rf.CurrentTerm = args.Term
 		rf.Role = 0
 
-		// Reset ElectionTimer
-		rf.ResetElectionTimer()
+		// fmt.Printf("[%v:t%v] Changed role to %v. \n", rf.me, rf.CurrentTerm, rf.Role)
+
+		if len(args.Entries) == 0 {
+
+		}
 
 	}
+	rf.mu.Unlock()
+
+	// Reset ElectionTimer
+	rf.ResetElectionTimer()
 
 }
 
@@ -387,17 +463,42 @@ func (rf *Raft) ticker() {
 		// be started and to randomize sleeping time using
 		// time.Sleep().
 
-		// fmt.Println("Ticked! " + fmt.Sprint(rf.me))
-
 		<-rf.ElectionTimer.C
 		rf.mu.Lock()
-		rf.Role = 1
-		rf.CurrentTerm += 1
-		rf.VotedFor = rf.me
+		currentRole := rf.Role
 		rf.mu.Unlock()
+
+		// fmt.Printf("[%v: %v] ElectionTimer Ticked! \n", rf.me, currentRole)
+
+		if currentRole == 2 {
+			continue
+		}
 
 		rf.StartElection()
 		rf.ResetElectionTimer()
+	}
+}
+
+func (rf *Raft) heartBeatTicker() {
+	for rf.killed() == false {
+
+		// Your code here to check if a leader election should
+		// be started and to randomize sleeping time using
+		// time.Sleep().
+
+		<-rf.HeartBeatTimer.C
+
+		rf.mu.Lock()
+		currentRole := rf.Role
+		rf.mu.Unlock()
+
+		// fmt.Printf("[%v:%v] Heartbeat Ticked!\n", rf.me, currentRole)
+
+		if currentRole == 2 {
+			rf.SendHeartBeat()
+		}
+
+		rf.ResetHeartBeatTimer()
 	}
 }
 
@@ -421,16 +522,24 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 	// Your initialization code here (2A, 2B, 2C).
 	rf.ElectionTimer = time.NewTimer(time.Duration(rand.Intn(1000)+300) * time.Millisecond)
+	rf.HeartBeatTimer = time.NewTimer(time.Duration(200 * time.Millisecond))
 	dummyLog := LogEntry{
 		Term:    0,
 		Command: nil,
 	}
 	rf.Log = append(rf.Log, dummyLog)
+
+	rf.VotedFor = -1
+	rf.CurrentTerm = 0
+	rf.CommitIndex = 0
+	rf.Role = 0
+
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
 
 	// start ticker goroutine to start elections
 	go rf.ticker()
+	go rf.heartBeatTicker()
 
 	return rf
 }
