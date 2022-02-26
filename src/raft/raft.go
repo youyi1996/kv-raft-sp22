@@ -401,13 +401,14 @@ func (rf *Raft) SendHeartBeat() {
 			continue
 		}
 		fmt.Printf("[%v:t%v:%v] lastLogIndex %v, Peer %v NextIndex %v!\n", rf.me, rf.CurrentTerm, rf.Role, lastLogIndex, peer, rf.NextIndex[peer])
-		entries := make([]LogEntry, 0)
 		if rf.NextIndex[peer] <= lastLogIndex {
-			// entries = append(entries, rf.Log[rf.NextIndex[peer]])
-			entries = rf.Log[rf.NextIndex[peer]:]
+			// entries = append(entries, rf.Log[rf.NextIndex[peer]]
+			entries := make([]LogEntry, len(rf.Log)-rf.NextIndex[peer])
+			copy(entries, rf.Log[rf.NextIndex[peer]:])
 			go rf.SendLogs(peer, entries, rf.CurrentTerm, rf.me, rf.NextIndex[peer]-1, rf.Log[rf.NextIndex[peer]-1].Term, rf.CommitIndex)
 			fmt.Printf("[%v:t%v:%v] Send Heartbeat to Peer %v, lastid: %v, lastterm %v!\n", rf.me, rf.CurrentTerm, rf.Role, peer, lastLogIndex, rf.Log[lastLogIndex].Term)
 		} else {
+			entries := make([]LogEntry, 0)
 			go rf.SendLogs(peer, entries, rf.CurrentTerm, rf.me, lastLogIndex, rf.Log[lastLogIndex].Term, rf.CommitIndex)
 			fmt.Printf("[%v:t%v:%v] Send Heartbeat to Peer %v, lastid: %v, lastterm %v!\n", rf.me, rf.CurrentTerm, rf.Role, peer, lastLogIndex, rf.Log[lastLogIndex].Term)
 
@@ -528,9 +529,10 @@ func (rf *Raft) SendLogs(server int, entries []LogEntry, term int, leaderId int,
 	// rf.mu.Unlock()
 	// fmt.Printf("[%v] Sends Heartbeat to %v!\n", rf.me, server)
 
+	success := rf.peers[server].Call("Raft.AppendEntries", &args, &reply)
+
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	success := rf.peers[server].Call("Raft.AppendEntries", &args, &reply)
 
 	if !success {
 		return
