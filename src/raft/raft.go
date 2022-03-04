@@ -437,7 +437,7 @@ func (rf *Raft) SendHeartBeat() {
 		if rf.NextIndex[peer] <= lastLogIndex {
 			entries := make([]LogEntry, len(rf.Log)-rf.NextIndex[peer])
 			copy(entries, rf.Log[rf.NextIndex[peer]:])
-			// fmt.Printf("%v, %v, %v\n", len(rf.Log), rf.NextIndex[peer]-1, rf.NextIndex)
+			// fmt.Printf("[%v:t%v:%v] %v, %v, %v\n", rf.me, rf.CurrentTerm, rf.Role, len(rf.Log), rf.NextIndex[peer]-1, rf.NextIndex)
 			go rf.SendLogs(peer, entries, rf.CurrentTerm, rf.me, rf.NextIndex[peer]-1, rf.Log[rf.NextIndex[peer]-1].Term, rf.CommitIndex)
 			// fmt.Printf("[%v:t%v:%v] Send Heartbeat to Peer %v, lastid: %v, lastterm %v!\n", rf.me, rf.CurrentTerm, rf.Role, peer, lastLogIndex, rf.Log[lastLogIndex].Term)
 		} else {
@@ -594,6 +594,9 @@ func (rf *Raft) SendLogs(server int, entries []LogEntry, term int, leaderId int,
 		} else {
 			// fmt.Printf("[%v:t%v:%v] Server %v does not say its expected log. Current is %v.\n", rf.me, rf.CurrentTerm, rf.Role, server, prevLogIndex)
 			rf.NextIndex[server] = prevLogIndex - 1
+			if rf.NextIndex[server] <= 0 {
+				rf.NextIndex[server] = 1
+			}
 		}
 
 	}
