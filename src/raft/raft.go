@@ -18,11 +18,14 @@ package raft
 //
 
 import (
+	"bytes"
+	"log"
 	"math/rand"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"6.824/labgob"
 	"6.824/labrpc"
 )
 
@@ -124,6 +127,15 @@ func (rf *Raft) persist() {
 	// e.Encode(rf.yyy)
 	// data := w.Bytes()
 	// rf.persister.SaveRaftState(data)
+
+	w := new(bytes.Buffer)
+	e := labgob.NewEncoder(w)
+	e.Encode(rf.CurrentTerm)
+	e.Encode(rf.VotedFor)
+	e.Encode(rf.Log)
+	data := w.Bytes()
+	rf.persister.SaveRaftState(data)
+
 }
 
 //
@@ -146,6 +158,19 @@ func (rf *Raft) readPersist(data []byte) {
 	//   rf.xxx = xxx
 	//   rf.yyy = yyy
 	// }
+	r := bytes.NewBuffer(data)
+	d := labgob.NewDecoder(r)
+	var CurrentTerm int
+	var VotedFor int
+	var Log []LogEntry
+	if d.Decode(&CurrentTerm) != nil || d.Decode(&VotedFor) != nil || d.Decode(&Log) != nil {
+		log.Fatal("error!")
+	} else {
+		rf.CurrentTerm = CurrentTerm
+		rf.VotedFor = VotedFor
+		rf.Log = Log
+		// fmt.Printf("%v\n", rf.Log)
+	}
 }
 
 //
@@ -225,6 +250,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
+	defer rf.persist()
 	// fmt.Printf("[%v:t%v:%v] Received RequestVote from %v. %v\n", rf.me, rf.CurrentTerm, rf.Role, args.CandidateId, args)
 
 	if args.Term > rf.CurrentTerm {
@@ -333,9 +359,16 @@ func (rf *Raft) AskForOneVote(server int) {
 						rf.NextIndex[i] = rf.LastApplied + 1
 						rf.MatchIndex[i] = 0
 					}
+					rf.persist()
 					// fmt.Printf("[%v:t%v:%v] Becomes Leader. Logs: %v\n", rf.me, rf.CurrentTerm, rf.Role, rf.Log)
 					go rf.SendHeartBeat()
 				}
+			} else if reply.Term > rf.CurrentTerm {
+				rf.CurrentTerm = reply.Term
+				rf.VotedFor = -1
+				rf.Role = 0
+				rf.ResetElectionTimer()
+				rf.persist()
 			}
 		}
 		rf.mu.Unlock()
@@ -353,6 +386,7 @@ func (rf *Raft) StartElection() {
 	rf.CurrentTerm += 1
 	rf.VotedFor = rf.me
 	rf.NumReceivedVotes = 1
+	rf.persist()
 
 	// fmt.Printf("[%v:t%v:%v] Starts an election!\n", rf.me, rf.CurrentTerm, rf.Role)
 
@@ -403,6 +437,7 @@ func (rf *Raft) SendHeartBeat() {
 		if rf.NextIndex[peer] <= lastLogIndex {
 			entries := make([]LogEntry, len(rf.Log)-rf.NextIndex[peer])
 			copy(entries, rf.Log[rf.NextIndex[peer]:])
+			// fmt.Printf("%v, %v, %v\n", len(rf.Log), rf.NextIndex[peer]-1, rf.NextIndex)
 			go rf.SendLogs(peer, entries, rf.CurrentTerm, rf.me, rf.NextIndex[peer]-1, rf.Log[rf.NextIndex[peer]-1].Term, rf.CommitIndex)
 			// fmt.Printf("[%v:t%v:%v] Send Heartbeat to Peer %v, lastid: %v, lastterm %v!\n", rf.me, rf.CurrentTerm, rf.Role, peer, lastLogIndex, rf.Log[lastLogIndex].Term)
 		} else {
@@ -419,6 +454,7 @@ func (rf *Raft) SendHeartBeat() {
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
+	defer rf.persist()
 
 	// Reset ElectionTimer
 	rf.ResetElectionTimer()
@@ -429,6 +465,8 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		// fmt.Printf("[%v:t%v:%v] Received Heartbeat: args %v. \n", rf.me, rf.CurrentTerm, rf.Role, args)
 
 	}
+
+	reply.ExpectedIndex = -2
 
 	if args.Term < rf.CurrentTerm {
 		reply.Success = false
@@ -454,7 +492,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	if followerLastLogIndex < args.PrevLogIndex || rf.Log[args.PrevLogIndex].Term != args.PrevLogTerm {
 		reply.Success = false
 		reply.Term = rf.CurrentTerm
-		// reply.ExpectedIndex = rf.CommitIndex
+		reply.ExpectedIndex = rf.CommitIndex + 1
 		// fmt.Printf("[%v:t%v:%v] Reply to leader %v: %v. \n", rf.me, rf.CurrentTerm, rf.Role, args.LeaderId, reply)
 
 		return
@@ -531,6 +569,7 @@ func (rf *Raft) SendLogs(server int, entries []LogEntry, term int, leaderId int,
 
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
+	defer rf.persist()
 
 	if !success {
 		return
@@ -549,8 +588,11 @@ func (rf *Raft) SendLogs(server int, entries []LogEntry, term int, leaderId int,
 			rf.ResetElectionTimer()
 			return
 		} else if reply.ExpectedIndex > 0 {
+			// fmt.Printf("[%v:t%v:%v] Server %v expects log %v.\n", rf.me, rf.CurrentTerm, rf.Role, server, reply.ExpectedIndex)
 			rf.NextIndex[server] = reply.ExpectedIndex
+			rf.MatchIndex[server] = reply.ExpectedIndex - 1
 		} else {
+			// fmt.Printf("[%v:t%v:%v] Server %v does not say its expected log. Current is %v.\n", rf.me, rf.CurrentTerm, rf.Role, server, prevLogIndex)
 			rf.NextIndex[server] = prevLogIndex - 1
 		}
 
@@ -743,7 +785,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.HeartBeatTimer = time.NewTimer(time.Duration(200 * time.Millisecond))
 	dummyLog := LogEntry{
 		Term:    0,
-		Command: nil,
+		Command: 10000000,
 	}
 	rf.Log = append(rf.Log, dummyLog)
 	rf.VotedFor = -1
@@ -752,6 +794,9 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.Role = 0
 	rf.applyCh = applyCh
 
+	// initialize from state persisted before a crash
+	rf.readPersist(persister.ReadRaftState())
+
 	msg := ApplyMsg{
 		CommandValid: true,
 		Command:      rf.Log[0].Command,
@@ -759,9 +804,6 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	}
 
 	rf.applyCh <- msg
-
-	// initialize from state persisted before a crash
-	rf.readPersist(persister.ReadRaftState())
 
 	// start ticker goroutine to start elections
 	go rf.ticker()
