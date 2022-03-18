@@ -91,6 +91,8 @@ type Raft struct {
 
 	NumReceivedVotes int
 
+	SnapShotOffset int
+
 	applyCh chan ApplyMsg
 }
 
@@ -228,6 +230,18 @@ type AppendEntriesReply struct {
 	Term          int
 	Success       bool
 	ExpectedIndex int
+}
+
+type InstallSnapshotArgs struct {
+	Term              int
+	LeaderId          int
+	LastIncludedIndex int
+	LastIncludedTerm  int
+	Data              []LogEntry
+}
+
+type InstallSnapshotReply struct {
+	Term int
 }
 
 func (rf *Raft) ResetElectionTimer() {
@@ -795,6 +809,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.CurrentTerm = 0
 	rf.CommitIndex = 0
 	rf.Role = 0
+	rf.SnapShotOffset = 0
 	rf.applyCh = applyCh
 
 	// initialize from state persisted before a crash
