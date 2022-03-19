@@ -193,6 +193,30 @@ func (rf *Raft) CondInstallSnapshot(lastIncludedTerm int, lastIncludedIndex int,
 func (rf *Raft) Snapshot(index int, snapshot []byte) {
 	// Your code here (2D).
 
+	if rf == nil {
+		return
+	}
+
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+
+	if index > rf.SnapShotOffset {
+
+		rf.SnapShotOffset = index
+		rf.Log = rf.Log[index-rf.SnapShotOffset:]
+
+		w := new(bytes.Buffer)
+		e := labgob.NewEncoder(w)
+		e.Encode(rf.CurrentTerm)
+		e.Encode(rf.VotedFor)
+		e.Encode(rf.Log)
+		data := w.Bytes()
+		rf.persister.SaveStateAndSnapshot(data, snapshot)
+
+	} else {
+		return
+	}
+
 }
 
 //
@@ -290,7 +314,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		return
 	}
 
-	lastLogTerm := rf.Log[len(rf.Log)-1].Term
+	lastLogTerm := rf.Log[len(rf.Log)-rf.SnapShotOffset-1].Term
 	lastLogIndex := len(rf.Log) - 1
 
 	if (args.LastLogTerm > lastLogTerm) || (args.LastLogTerm == lastLogTerm && args.LastLogIndex >= lastLogIndex) {
@@ -350,7 +374,7 @@ func (rf *Raft) AskForOneVote(server int) {
 		Term:         rf.CurrentTerm,
 		CandidateId:  rf.me,
 		LastLogIndex: len(rf.Log) - 1,
-		LastLogTerm:  rf.Log[len(rf.Log)-1].Term,
+		LastLogTerm:  rf.Log[len(rf.Log)-rf.SnapShotOffset-1].Term,
 	}
 	rf.mu.Unlock()
 
@@ -449,14 +473,14 @@ func (rf *Raft) SendHeartBeat() {
 		}
 		// fmt.Printf("[%v:t%v:%v] lastLogIndex %v, Peer %v NextIndex %v!\n", rf.me, rf.CurrentTerm, rf.Role, lastLogIndex, peer, rf.NextIndex[peer])
 		if rf.NextIndex[peer] <= lastLogIndex {
-			entries := make([]LogEntry, len(rf.Log)-rf.NextIndex[peer])
-			copy(entries, rf.Log[rf.NextIndex[peer]:])
+			entries := make([]LogEntry, len(rf.Log)+rf.SnapShotOffset-rf.NextIndex[peer])
+			copy(entries, rf.Log[(rf.NextIndex[peer]-rf.SnapShotOffset):])
 			// fmt.Printf("[%v:t%v:%v] %v, %v, %v\n", rf.me, rf.CurrentTerm, rf.Role, len(rf.Log), rf.NextIndex[peer]-1, rf.NextIndex)
-			go rf.SendLogs(peer, entries, rf.CurrentTerm, rf.me, rf.NextIndex[peer]-1, rf.Log[rf.NextIndex[peer]-1].Term, rf.CommitIndex)
+			go rf.SendLogs(peer, entries, rf.CurrentTerm, rf.me, rf.NextIndex[peer]-1, rf.Log[rf.NextIndex[peer]-rf.SnapShotOffset-1].Term, rf.CommitIndex)
 			// fmt.Printf("[%v:t%v:%v] Send Heartbeat to Peer %v, lastid: %v, lastterm %v!\n", rf.me, rf.CurrentTerm, rf.Role, peer, lastLogIndex, rf.Log[lastLogIndex].Term)
 		} else {
 			entries := make([]LogEntry, 0)
-			go rf.SendLogs(peer, entries, rf.CurrentTerm, rf.me, lastLogIndex, rf.Log[lastLogIndex].Term, rf.CommitIndex)
+			go rf.SendLogs(peer, entries, rf.CurrentTerm, rf.me, lastLogIndex, rf.Log[lastLogIndex-rf.SnapShotOffset].Term, rf.CommitIndex)
 			// fmt.Printf("[%v:t%v:%v] Send Heartbeat to Peer %v, lastid: %v, lastterm %v!\n", rf.me, rf.CurrentTerm, rf.Role, peer, lastLogIndex, rf.Log[lastLogIndex].Term)
 
 		}
@@ -503,7 +527,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 
 	// // fmt.Printf("[%v:t%v] ")
 
-	if followerLastLogIndex < args.PrevLogIndex || rf.Log[args.PrevLogIndex].Term != args.PrevLogTerm {
+	if followerLastLogIndex < args.PrevLogIndex || rf.Log[args.PrevLogIndex-rf.SnapShotOffset].Term != args.PrevLogTerm {
 		reply.Success = false
 		reply.Term = rf.CurrentTerm
 		reply.ExpectedIndex = rf.CommitIndex + 1
@@ -513,11 +537,11 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	}
 
 	for id, entry := range args.Entries {
-		if followerLastLogIndex+1 > args.PrevLogIndex+id+1 && rf.Log[args.PrevLogIndex+id+1].Term != entry.Term {
+		if followerLastLogIndex+1 > args.PrevLogIndex+id+1 && rf.Log[args.PrevLogIndex-rf.SnapShotOffset+id+1].Term != entry.Term {
 			// fmt.Printf("[%v:t%v:%v] Before slice: %v\n", rf.me, rf.CurrentTerm, rf.Role, rf.Log)
 
-			rf.Log = rf.Log[:args.PrevLogIndex+id+1]
-			followerLastLogIndex = len(rf.Log) - 1
+			rf.Log = rf.Log[:args.PrevLogIndex-rf.SnapShotOffset+id+1]
+			followerLastLogIndex = len(rf.Log) - 1 + rf.SnapShotOffset
 
 			// fmt.Printf("[%v:t%v:%v] After slice: %v\n", rf.me, rf.CurrentTerm, rf.Role, rf.Log)
 
@@ -526,7 +550,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			rf.Log = append(rf.Log, entry)
 			// fmt.Printf("[%v:t%v:%v] Appended Log id=%v to state machine!\n", rf.me, rf.CurrentTerm, rf.Role, args.PrevLogIndex+id+1)
 		}
-		followerLastLogIndex = len(rf.Log) - 1
+		followerLastLogIndex = len(rf.Log) - 1 + rf.SnapShotOffset
 
 	}
 
@@ -537,13 +561,13 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		if args.LeaderCommit < len(rf.Log)-1 {
 			rf.CommitIndex = args.LeaderCommit
 		} else {
-			rf.CommitIndex = len(rf.Log) - 1
+			rf.CommitIndex = len(rf.Log) - 1 + rf.SnapShotOffset
 		}
 
 		for i := rf.LastApplied + 1; i <= rf.CommitIndex; i++ {
 			message := ApplyMsg{
 				CommandValid: true,
-				Command:      rf.Log[i].Command,
+				Command:      rf.Log[i-rf.SnapShotOffset].Command,
 				CommandIndex: i,
 			}
 			rf.applyCh <- message
@@ -616,7 +640,7 @@ func (rf *Raft) SendLogs(server int, entries []LogEntry, term int, leaderId int,
 	}
 
 	for i := len(rf.Log) - 1; i > rf.CommitIndex; i-- {
-		if rf.Log[i].Term == rf.CurrentTerm {
+		if rf.Log[i-rf.SnapShotOffset].Term == rf.CurrentTerm {
 			num_applied := 1
 			for j := range rf.peers {
 				if rf.MatchIndex[j] >= i {
@@ -629,7 +653,7 @@ func (rf *Raft) SendLogs(server int, entries []LogEntry, term int, leaderId int,
 				for j := rf.LastApplied + 1; j <= rf.CommitIndex; j++ {
 					message := ApplyMsg{
 						CommandValid: true,
-						Command:      rf.Log[j].Command,
+						Command:      rf.Log[j-rf.SnapShotOffset].Command,
 						CommandIndex: j,
 					}
 					rf.applyCh <- message
@@ -810,6 +834,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.CommitIndex = 0
 	rf.Role = 0
 	rf.SnapShotOffset = 0
+	rf.LastSnapShotTerm = 0
 	rf.applyCh = applyCh
 
 	// initialize from state persisted before a crash
