@@ -195,9 +195,9 @@ func (rf *Raft) CondInstallSnapshot(lastIncludedTerm int, lastIncludedIndex int,
 		return false
 	}
 
-	if len(rf.Log)+rf.SnapShotOffset > lastIncludedIndex {
+	if len(rf.Log)+rf.SnapShotOffset-1 > lastIncludedIndex {
 		// have more logs saved than snapshot, turncate them
-		fmt.Printf("[%v:t%v:%v] CurrentSnapshotOffset=%v. lastIncludedIndex=%v. Log=%v\n", rf.me, rf.CurrentTerm, rf.Role, lastIncludedIndex-rf.SnapShotOffset, lastIncludedIndex, rf.Log)
+		fmt.Printf("[%v:t%v:%v] CurrentSnapshotOffset=%v. lastIncludedIndex=%v. Log=%v, len=%v\n", rf.me, rf.CurrentTerm, rf.Role, rf.SnapShotOffset, lastIncludedIndex, rf.Log, len(rf.Log))
 		rf.Log = rf.Log[lastIncludedIndex-rf.SnapShotOffset:]
 		fmt.Printf("[%v:t%v:%v] Turncated logs from %v. \n", rf.me, rf.CurrentTerm, rf.Role, lastIncludedIndex-rf.SnapShotOffset)
 
