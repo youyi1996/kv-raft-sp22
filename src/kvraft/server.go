@@ -1,7 +1,7 @@
 package kvraft
 
 import (
-	"fmt"
+	// "fmt"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -93,9 +93,9 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
 
-	if args.SeqNum%100 == 0 {
-		fmt.Printf("[kv%v] Received PutAppend from client: %v\n", kv.me, args)
-	}
+	// if args.SeqNum%100 == 0 {
+	// 	fmt.Printf("[kv%v] Received PutAppend from client: %v\n", kv.me, args)
+	// }
 
 	command := Op{
 		Operation: args.Op,
@@ -235,7 +235,7 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	go kv.receiveApplyMsg()
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
-	fmt.Printf("[kv%v] Initialized KVServer.\n", kv.me)
+	// fmt.Printf("[kv%v] Initialized KVServer.\n", kv.me)
 
 	return kv
 }

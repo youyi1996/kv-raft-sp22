@@ -53,7 +53,7 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 func (ck *Clerk) Get(key string) string {
 
 	// You will have to modify this function.
-	fmt.Printf("[client] Trying GET %v\n", key)
+	// fmt.Printf("[client] Trying GET %v\n", key)
 	ck.mu.Lock()
 	ck.SeqNum += 1
 	seqNum := ck.SeqNum
