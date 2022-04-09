@@ -1,12 +1,16 @@
 package kvraft
 
 import (
-	"6.824/labgob"
-	"6.824/labrpc"
-	"6.824/raft"
+	"fmt"
 	"log"
 	"sync"
 	"sync/atomic"
+
+	"time"
+
+	"6.824/labgob"
+	"6.824/labrpc"
+	"6.824/raft"
 )
 
 const Debug = false
@@ -22,6 +26,12 @@ type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	Operation string // Get Put or Append
+	Key       string
+	Value     string
+
+	ClientId int
+	SeqNum   int
 }
 
 type KVServer struct {
@@ -34,14 +44,99 @@ type KVServer struct {
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
+	Data        map[string]string
+	Channels    map[int]chan Op
+	LastApplied map[int]int
 }
 
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
+
+	command := Op{
+		Operation: "Get",
+		Key:       args.Key,
+		ClientId:  args.ClientId,
+		SeqNum:    args.SeqNum,
+	}
+
+	logIndex, _, isLeader := kv.rf.Start(command)
+
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+
+	kv.mu.Lock()
+	channel, isExist := kv.Channels[logIndex]
+	if !isExist {
+		channel = make(chan Op, 1)
+		kv.Channels[logIndex] = channel
+	}
+	kv.mu.Unlock()
+
+	select {
+	case msg := <-channel:
+		if msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum {
+			reply.Err = OK
+			reply.Value = msg.Value
+		} else {
+			reply.Err = ErrWrongLeader
+			return
+		}
+	case <-time.After(1 * time.Second):
+		reply.Err = ErrWrongLeader
+		return
+	}
+
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
+
+	if args.SeqNum%100 == 0 {
+		fmt.Printf("[kv%v] Received PutAppend from client: %v\n", kv.me, args)
+	}
+
+	command := Op{
+		Operation: args.Op,
+		Key:       args.Key,
+		Value:     args.Value,
+		ClientId:  args.ClientId,
+		SeqNum:    args.SeqNum,
+	}
+
+	logIndex, _, isLeader := kv.rf.Start(command)
+
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		// fmt.Printf("[kv%v] Unsuccess because not leader: %v\n", kv.me, args)
+		return
+	}
+
+	kv.mu.Lock()
+	channel, isExist := kv.Channels[logIndex]
+	if !isExist {
+		channel = make(chan Op, 1)
+		kv.Channels[logIndex] = channel
+	}
+	kv.mu.Unlock()
+
+	select {
+	case msg := <-channel:
+		if msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum {
+			reply.Err = OK
+			// fmt.Printf("[kv%v] Successfully PUTAPPEND: %v\n", kv.me, args)
+		} else {
+			reply.Err = ErrWrongLeader
+			// fmt.Printf("[kv%v] Unsuccess because of id mismatch: %v\n", kv.me, args)
+			return
+		}
+	case <-time.After(1 * time.Second):
+		reply.Err = ErrWrongLeader
+		// fmt.Printf("[kv%v] Unsuccess because of timeout: %v\n", kv.me, args)
+		return
+	}
+
 }
 
 //
@@ -63,6 +158,45 @@ func (kv *KVServer) Kill() {
 func (kv *KVServer) killed() bool {
 	z := atomic.LoadInt32(&kv.dead)
 	return z == 1
+}
+
+func (kv *KVServer) receiveApplyMsg() {
+	for {
+		applyMsg := <-kv.applyCh
+
+		if applyMsg.CommandValid {
+			if applyMsg.CommandIndex == 0 {
+				continue
+			}
+			command := applyMsg.Command.(Op)
+			idx := applyMsg.CommandIndex
+
+			kv.mu.Lock()
+			if command.Operation == "Get" {
+				command.Value = kv.Data[command.Key]
+			} else {
+				lastApplied, isExist := kv.LastApplied[command.ClientId]
+				if !isExist || lastApplied < command.SeqNum {
+					if command.Operation == "Put" {
+						kv.Data[command.Key] = command.Value
+					} else if command.Operation == "Append" {
+						kv.Data[command.Key] += command.Value
+					}
+
+					kv.LastApplied[command.ClientId] = command.SeqNum
+				}
+			}
+			channel, isExist := kv.Channels[idx]
+			if !isExist {
+				channel = make(chan Op, 1)
+				kv.Channels[idx] = channel
+			}
+			channel <- command
+			kv.mu.Unlock()
+		}
+
+		// time.Sleep(time.Millisecond * 100)
+	}
 }
 
 //
@@ -91,9 +225,17 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	// You may need initialization code here.
 
 	kv.applyCh = make(chan raft.ApplyMsg)
-	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
 	// You may need initialization code here.
+
+	kv.Data = make(map[string]string)
+	kv.Channels = make(map[int]chan Op)
+	kv.LastApplied = make(map[int]int)
+
+	go kv.receiveApplyMsg()
+	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
+
+	fmt.Printf("[kv%v] Initialized KVServer.\n", kv.me)
 
 	return kv
 }

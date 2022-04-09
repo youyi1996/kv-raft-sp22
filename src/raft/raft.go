@@ -894,6 +894,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		rf.Log = append(rf.Log, newLogEntry)
 
 		index = len(rf.Log) + rf.SnapShotOffset - 1
+		rf.HeartBeatTimer.Reset(1 * time.Millisecond)
 
 		// fmt.Printf("[%v:t%v:%v] lastLogIndex %v, lastLogTerm %v.\n", rf.me, rf.CurrentTerm, rf.Role, lastLogIndex, lastLogTerm)
 
@@ -1025,7 +1026,6 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
-	// fmt.Printf("[%v:t%v:%v] Trying applying first command. %v\n", rf.me, rf.CurrentTerm, rf.Role, rf.Log)
 	msg := ApplyMsg{
 		CommandValid: true,
 		Command:      10000000,

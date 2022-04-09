@@ -2,6 +2,7 @@ package kvraft
 
 import (
 	"crypto/rand"
+	"fmt"
 	"math/big"
 	"sync"
 
@@ -31,6 +32,9 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	ck.LeaderId = 0
 	ck.ClientId = int(nrand())
 	ck.SeqNum = 0
+
+	fmt.Printf("[client] Initialized Client.\n")
+
 	return ck
 }
 
@@ -49,6 +53,7 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 func (ck *Clerk) Get(key string) string {
 
 	// You will have to modify this function.
+	fmt.Printf("[client] Trying GET %v\n", key)
 	ck.mu.Lock()
 	ck.SeqNum += 1
 	seqNum := ck.SeqNum
@@ -102,6 +107,8 @@ func (ck *Clerk) Get(key string) string {
 //
 func (ck *Clerk) PutAppend(key string, value string, op string) {
 	// You will have to modify this function.
+	// fmt.Printf("[client] Trying %v %v with %v\n", op, key, value)
+
 	ck.mu.Lock()
 	ck.SeqNum += 1
 	seqNum := ck.SeqNum
