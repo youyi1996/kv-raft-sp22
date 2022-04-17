@@ -285,7 +285,7 @@ func (rf *Raft) Snapshot(index int, snapshot []byte) {
 		rf.mu.Lock()
 		defer rf.mu.Unlock()
 
-		if index > rf.SnapShotOffset {
+		if index > rf.SnapShotOffset && index-rf.SnapShotOffset < len(rf.Log) {
 
 			rf.Log = rf.Log[index-rf.SnapShotOffset:]
 			rf.SnapShotOffset = index
