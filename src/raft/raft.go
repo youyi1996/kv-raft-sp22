@@ -873,6 +873,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 
 	// Your code here (2B).
 
+	// fmt.Printf("[%v:t%v:%v] Received command %v. Trying to get LOCK...\n", rf.me, rf.CurrentTerm, rf.Role, command)
 	rf.mu.Lock()
 	// fmt.Printf("[%v:t%v:%v] Locked in Start %v.\n", rf.me, rf.CurrentTerm, rf.Role, command)
 
@@ -987,6 +988,10 @@ func (rf *Raft) heartBeatTicker() {
 		}
 
 	}
+}
+
+func (rf *Raft) GetPersisterStateSize() int {
+	return rf.persister.RaftStateSize()
 }
 
 //
