@@ -3,7 +3,6 @@ package kvraft
 import (
 	// "fmt"
 	"bytes"
-	"fmt"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -54,7 +53,7 @@ type KVServer struct {
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
 
-	fmt.Printf("[kv%v] Received GET from client: %v\n", kv.me, args)
+	// fmt.Printf("[kv%v] Received GET from client: %v\n", kv.me, args)
 
 	command := Op{
 		Operation: "Get",
@@ -68,11 +67,11 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 
 	if !isLeader {
 		reply.Err = ErrWrongLeader
-		fmt.Printf("[kv%v] Failed because ErrWrongLeader\n", kv.me)
+		// fmt.Printf("[kv%v] Failed because ErrWrongLeader\n", kv.me)
 		return
 	}
 
-	fmt.Printf("[kv%v] Waiting for Lock in GET...\n", kv.me)
+	// fmt.Printf("[kv%v] Waiting for Lock in GET...\n", kv.me)
 	kv.mu.Lock()
 	channel, isExist := kv.Channels[logIndex]
 	if !isExist {
@@ -80,23 +79,23 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 		kv.Channels[logIndex] = channel
 	}
 	kv.mu.Unlock()
-	fmt.Printf("[kv%v] Released Lock in GET\n", kv.me)
+	// fmt.Printf("[kv%v] Released Lock in GET\n", kv.me)
 
 	select {
 	case msg := <-channel:
 		if msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum {
 			reply.Err = OK
 			reply.Value = msg.Value
-			fmt.Printf("[kv%v] Success OK %v\n", kv.me, msg.Value)
+			// fmt.Printf("[kv%v] Success OK %v\n", kv.me, msg.Value)
 			return
 		} else {
 			reply.Err = ErrWrongLeader
-			fmt.Printf("[kv%v] Failed because msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum not true\n", kv.me)
+			// fmt.Printf("[kv%v] Failed because msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum not true\n", kv.me)
 			return
 		}
 	case <-time.After(1 * time.Second):
 		reply.Err = ErrWrongLeader
-		fmt.Printf("[kv%v] Failed because timeout\n", kv.me)
+		// fmt.Printf("[kv%v] Failed because timeout\n", kv.me)
 		return
 	}
 
@@ -106,7 +105,7 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
 
 	// if args.SeqNum%100 == 0 {
-	fmt.Printf("[kv%v] Received PutAppend from client: %v\n", kv.me, args)
+	// fmt.Printf("[kv%v] Received PutAppend from client: %v\n", kv.me, args)
 	// }
 
 	command := Op{
@@ -177,16 +176,16 @@ func (kv *KVServer) killed() bool {
 func (kv *KVServer) receiveApplyMsg() {
 	for {
 		applyMsg := <-kv.applyCh
-		fmt.Printf("[kv%v] Received applyMsg %v.\n", kv.me, applyMsg)
+		// fmt.Printf("[kv%v] Received applyMsg %v.\n", kv.me, applyMsg)
 
 		if applyMsg.SnapshotValid {
-			fmt.Printf("[kv%v] Trying to install snapshot...\n", kv.me)
+			// fmt.Printf("[kv%v] Trying to install snapshot...\n", kv.me)
 			go func() {
 				if kv.rf.CondInstallSnapshot(applyMsg.SnapshotTerm, applyMsg.SnapshotIndex, applyMsg.Snapshot) {
-					fmt.Printf("[kv%v] Raft install successfully.\n", kv.me)
+					// fmt.Printf("[kv%v] Raft install successfully.\n", kv.me)
 					kv.recover(applyMsg.Snapshot)
 				} else {
-					fmt.Printf("[kv%v] Raft install Failed.\n", kv.me)
+					// fmt.Printf("[kv%v] Raft install Failed.\n", kv.me)
 
 				}
 			}()
@@ -294,9 +293,9 @@ func (kv *KVServer) recover(snapshot []byte) {
 	d.Decode(&data)
 	d.Decode(&lastApplied)
 
-	fmt.Printf("[kv%v] Enter recover.\n", kv.me)
-	fmt.Println(data)
-	fmt.Println(lastApplied)
+	// fmt.Printf("[kv%v] Enter recover.\n", kv.me)
+	// fmt.Println(data)
+	// fmt.Println(lastApplied)
 
 	kv.Data = data
 	kv.LastApplied = lastApplied
