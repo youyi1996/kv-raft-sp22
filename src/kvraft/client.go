@@ -2,6 +2,7 @@ package kvraft
 
 import (
 	"crypto/rand"
+	"fmt"
 	"math/big"
 	"sync"
 
@@ -53,12 +54,14 @@ func (ck *Clerk) Get(key string) string {
 
 	// You will have to modify this function.
 	// fmt.Printf("[client] Trying GET %v\n", key)
+	fmt.Printf("[kvclient:%v] GETTING %v. Waiting for Lock in GET...\n", ck.ClientId, key)
 	ck.mu.Lock()
 	ck.SeqNum += 1
 	seqNum := ck.SeqNum
 	leaderId := ck.LeaderId
 	clientId := ck.ClientId
 	ck.mu.Unlock()
+	fmt.Printf("[kvclient:%v] Released Lock in GET\n", ck.ClientId)
 
 	args := GetArgs{
 		Key:      key,
@@ -71,20 +74,27 @@ func (ck *Clerk) Get(key string) string {
 	ret := ""
 
 	for serverId := leaderId; serverId != leaderId || !first_visited; serverId = (serverId + 1) % len(ck.servers) {
+		// for serverId := leaderId; ; serverId = (serverId + 1) % len(ck.servers) {
 		reply := GetReply{}
 
+		fmt.Printf("[kvclient:%v] Trying server %v...\n", ck.ClientId, serverId)
+
 		ok := ck.servers[serverId].Call("KVServer.Get", &args, &reply)
+		fmt.Printf("[kvclient:%v] Server %v:%v response: %v: %v\n", ck.ClientId, serverId, reply.ServerId, ok, reply)
 
 		if ok {
+			fmt.Printf("[kvclient:%v] Server %v:%v reply.Err=%v\n", ck.ClientId, serverId, reply.ServerId, reply.Err)
 			if reply.Err == ErrWrongLeader {
 				continue
 			} else {
 				if reply.Err == OK {
 					ret = reply.Value
 				}
+				fmt.Printf("[kvclient:%v] Waiting for Lock in GET2...\n", ck.ClientId)
 				ck.mu.Lock()
 				ck.LeaderId = serverId
 				ck.mu.Unlock()
+				fmt.Printf("[kvclient:%v] Released Lock in GET2\n", ck.ClientId)
 				break
 			}
 		}
@@ -108,12 +118,15 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 	// You will have to modify this function.
 	// fmt.Printf("[client] Trying %v %v with %v\n", op, key, value)
 
+	fmt.Printf("[kvclient:%v] Waiting for Lock in PutAppend...\n", ck.ClientId)
+
 	ck.mu.Lock()
 	ck.SeqNum += 1
 	seqNum := ck.SeqNum
 	leaderId := ck.LeaderId
 	clientId := ck.ClientId
 	ck.mu.Unlock()
+	fmt.Printf("[kvclient:%v] Released Lock in PutAppend...\n", ck.ClientId)
 
 	args := PutAppendArgs{
 		Key:      key,
@@ -126,17 +139,25 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 	first_visited := false
 
 	for serverId := leaderId; serverId != leaderId || !first_visited; serverId = (serverId + 1) % len(ck.servers) {
+		// for serverId := leaderId; ; serverId = (serverId + 1) % len(ck.servers) {
 		reply := PutAppendReply{}
+
+		fmt.Printf("[kvclient:%v] Trying server %v...\n", ck.ClientId, serverId)
 
 		ok := ck.servers[serverId].Call("KVServer.PutAppend", &args, &reply)
 
+		fmt.Printf("[kvclient:%v] Server %v:%v response: %v: %v\n", ck.ClientId, serverId, reply.ServerId, ok, reply)
+
 		if ok {
+			fmt.Printf("[kvclient:%v] Server %v:%v reply.Err=%v\n", ck.ClientId, serverId, reply.ServerId, reply.Err)
 			if reply.Err == ErrWrongLeader {
 				continue
 			} else {
+				fmt.Printf("[kvclient:%v] Waiting for Lock in PutAppend2...\n", ck.ClientId)
 				ck.mu.Lock()
 				ck.LeaderId = serverId
 				ck.mu.Unlock()
+				fmt.Printf("[kvclient:%v] Released Lock in PutAppend2...\n", ck.ClientId)
 				break
 			}
 		}

@@ -2,6 +2,8 @@ package kvraft
 
 import (
 	// "fmt"
+	"bytes"
+	"fmt"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -52,6 +54,8 @@ type KVServer struct {
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
 
+	fmt.Printf("[kv%v] Received GET from client: %v\n", kv.me, args)
+
 	command := Op{
 		Operation: "Get",
 		Key:       args.Key,
@@ -60,12 +64,15 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	}
 
 	logIndex, _, isLeader := kv.rf.Start(command)
+	reply.ServerId = kv.me
 
 	if !isLeader {
 		reply.Err = ErrWrongLeader
+		fmt.Printf("[kv%v] Failed because ErrWrongLeader\n", kv.me)
 		return
 	}
 
+	fmt.Printf("[kv%v] Waiting for Lock in GET...\n", kv.me)
 	kv.mu.Lock()
 	channel, isExist := kv.Channels[logIndex]
 	if !isExist {
@@ -73,18 +80,23 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 		kv.Channels[logIndex] = channel
 	}
 	kv.mu.Unlock()
+	fmt.Printf("[kv%v] Released Lock in GET\n", kv.me)
 
 	select {
 	case msg := <-channel:
 		if msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum {
 			reply.Err = OK
 			reply.Value = msg.Value
+			fmt.Printf("[kv%v] Success OK %v\n", kv.me, msg.Value)
+			return
 		} else {
 			reply.Err = ErrWrongLeader
+			fmt.Printf("[kv%v] Failed because msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum not true\n", kv.me)
 			return
 		}
 	case <-time.After(1 * time.Second):
 		reply.Err = ErrWrongLeader
+		fmt.Printf("[kv%v] Failed because timeout\n", kv.me)
 		return
 	}
 
@@ -94,7 +106,7 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
 
 	// if args.SeqNum%100 == 0 {
-	// 	fmt.Printf("[kv%v] Received PutAppend from client: %v\n", kv.me, args)
+	fmt.Printf("[kv%v] Received PutAppend from client: %v\n", kv.me, args)
 	// }
 
 	command := Op{
@@ -106,6 +118,7 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	}
 
 	logIndex, _, isLeader := kv.rf.Start(command)
+	reply.ServerId = kv.me
 
 	if !isLeader {
 		reply.Err = ErrWrongLeader
@@ -125,6 +138,7 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	case msg := <-channel:
 		if msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum {
 			reply.Err = OK
+			return
 			// fmt.Printf("[kv%v] Successfully PUTAPPEND: %v\n", kv.me, args)
 		} else {
 			reply.Err = ErrWrongLeader
@@ -163,6 +177,21 @@ func (kv *KVServer) killed() bool {
 func (kv *KVServer) receiveApplyMsg() {
 	for {
 		applyMsg := <-kv.applyCh
+		fmt.Printf("[kv%v] Received applyMsg %v.\n", kv.me, applyMsg)
+
+		if applyMsg.SnapshotValid {
+			fmt.Printf("[kv%v] Trying to install snapshot...\n", kv.me)
+			go func() {
+				if kv.rf.CondInstallSnapshot(applyMsg.SnapshotTerm, applyMsg.SnapshotIndex, applyMsg.Snapshot) {
+					fmt.Printf("[kv%v] Raft install successfully.\n", kv.me)
+					kv.recover(applyMsg.Snapshot)
+				} else {
+					fmt.Printf("[kv%v] Raft install Failed.\n", kv.me)
+
+				}
+			}()
+			continue
+		}
 
 		if applyMsg.CommandValid {
 			if applyMsg.CommandIndex == 0 {
@@ -192,7 +221,20 @@ func (kv *KVServer) receiveApplyMsg() {
 				kv.Channels[idx] = channel
 			}
 			channel <- command
+
+			// Check if need snapshot
+			if kv.maxraftstate >= 0 && float32(kv.rf.GetPersisterStateSize()) > float32(kv.maxraftstate)*.8 {
+				// fmt.Printf("[kv%v] Need snapshot! maxraftstate:%v, currentSize: %v. currentData: %v, raftLog: %v\n", kv.me, kv.maxraftstate, kv.rf.GetPersisterStateSize(), kv.Data, kv.rf.Log)
+
+				w := new(bytes.Buffer)
+				e := labgob.NewEncoder(w)
+				e.Encode(kv.Data)
+				e.Encode(kv.LastApplied)
+				snapshot := w.Bytes()
+				kv.rf.Snapshot(applyMsg.CommandIndex, snapshot)
+			}
 			kv.mu.Unlock()
+
 		}
 
 		// time.Sleep(time.Millisecond * 100)
@@ -231,11 +273,32 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.Data = make(map[string]string)
 	kv.Channels = make(map[int]chan Op)
 	kv.LastApplied = make(map[int]int)
+	kv.recover(persister.ReadSnapshot())
 
 	go kv.receiveApplyMsg()
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
 	// fmt.Printf("[kv%v] Initialized KVServer.\n", kv.me)
-
 	return kv
+}
+
+func (kv *KVServer) recover(snapshot []byte) {
+	kv.mu.Lock()
+	defer kv.mu.Unlock()
+
+	data := make(map[string]string)
+	lastApplied := make(map[int]int)
+
+	r := bytes.NewBuffer(snapshot)
+	d := labgob.NewDecoder(r)
+	d.Decode(&data)
+	d.Decode(&lastApplied)
+
+	fmt.Printf("[kv%v] Enter recover.\n", kv.me)
+	fmt.Println(data)
+	fmt.Println(lastApplied)
+
+	kv.Data = data
+	kv.LastApplied = lastApplied
+
 }
