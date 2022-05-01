@@ -411,6 +411,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		// fmt.Printf("[%v:t%v:%v] Voted for %v. %v, [%v:%v]. Logs: %v\n", rf.me, rf.CurrentTerm, rf.Role, args.CandidateId, args, lastLogTerm, lastLogIndex, rf.Log)
 
 		rf.Role = 0
+		rf.VotedFor = args.CandidateId
 
 		reply.VoteGranted = true
 		reply.Term = rf.CurrentTerm
