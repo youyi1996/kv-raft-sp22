@@ -27,18 +27,24 @@ type PutAppendArgs struct {
 	// You'll have to add definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	ClientId int
+	SeqNum   int
 }
 
 type PutAppendReply struct {
-	Err Err
+	Err      Err
+	ServerId int // For debug purpose
 }
 
 type GetArgs struct {
 	Key string
 	// You'll have to add definitions here.
+	ClientId int
+	SeqNum   int
 }
 
 type GetReply struct {
-	Err   Err
-	Value string
+	Err      Err
+	Value    string
+	ServerId int // For debug purpose
 }
