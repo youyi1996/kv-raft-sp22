@@ -1,17 +1,27 @@
 package shardkv
 
+import (
+	"bytes"
+	"fmt"
+	"sync"
+	"time"
 
-import "6.824/labrpc"
-import "6.824/raft"
-import "sync"
-import "6.824/labgob"
-
-
+	"6.824/labgob"
+	"6.824/labrpc"
+	"6.824/raft"
+)
 
 type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+
+	Operation string // Get Put or Append
+	Key       string
+	Value     string
+
+	ClientId int
+	SeqNum   int
 }
 
 type ShardKV struct {
@@ -25,15 +35,119 @@ type ShardKV struct {
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
+	Data        map[string]string
+	Channels    map[int]chan Op
+	LastApplied map[int]int
 }
 
+var DEBUG = false
+
+func (kv *ShardKV) DebugPrint(format string, a ...interface{}) {
+	// DEBUG PRINT
+	// THIS METHOD IS NOT SAFE. RACE MAY OCCUR.
+
+	if DEBUG {
+		fmt.Printf("[kvserver:%v] ", kv.me)
+		fmt.Printf(format, a...)
+	}
+}
 
 func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
+
+	kv.DebugPrint("Received GET from client: %v\n", args)
+
+	command := Op{
+		Operation: "Get",
+		Key:       args.Key,
+		ClientId:  args.ClientId,
+		SeqNum:    args.SeqNum,
+	}
+
+	logIndex, _, isLeader := kv.rf.Start(command)
+	reply.ServerId = kv.me
+
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		kv.DebugPrint("Failed because ErrWrongLeader\n")
+		return
+	}
+
+	// fmt.Printf("[kv%v] Waiting for Lock in GET...\n", kv.me)
+	kv.mu.Lock()
+	channel, isExist := kv.Channels[logIndex]
+	if !isExist {
+		channel = make(chan Op, 1)
+		kv.Channels[logIndex] = channel
+	}
+	kv.mu.Unlock()
+	// fmt.Printf("[kv%v] Released Lock in GET\n", kv.me)
+
+	select {
+	case msg := <-channel:
+		if msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum {
+			reply.Err = OK
+			reply.Value = msg.Value
+			kv.DebugPrint("Success OK. CliendId=%v SeqNum=%v\n", command.ClientId, command.SeqNum)
+			return
+		} else {
+			reply.Err = ErrWrongLeader
+			kv.DebugPrint("Failed... Received: [%v:%v]. Expected: [%v:%v]\n", msg.ClientId, msg.SeqNum, command.ClientId, command.SeqNum)
+			return
+		}
+	case <-time.After(2 * time.Second):
+		reply.Err = ErrWrongLeader
+		kv.DebugPrint("Raft timeout...\n")
+		return
+	}
+
 }
 
 func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
+
+	command := Op{
+		Operation: args.Op,
+		Key:       args.Key,
+		Value:     args.Value,
+		ClientId:  args.ClientId,
+		SeqNum:    args.SeqNum,
+	}
+
+	logIndex, _, isLeader := kv.rf.Start(command)
+	reply.ServerId = kv.me
+
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		kv.DebugPrint("Unsuccess because not leader: %v\n", args)
+		return
+	}
+
+	kv.mu.Lock()
+	channel, isExist := kv.Channels[logIndex]
+	if !isExist {
+		channel = make(chan Op, 1)
+		kv.Channels[logIndex] = channel
+	}
+	kv.mu.Unlock()
+
+	select {
+	case msg := <-channel:
+		if msg.ClientId == command.ClientId && msg.SeqNum == command.SeqNum {
+			reply.Err = OK
+			return
+			// fmt.Printf("[kv%v] Successfully PUTAPPEND: %v\n", kv.me, args)
+		} else {
+			reply.Err = ErrWrongLeader
+			kv.DebugPrint("Unsuccess because of id mismatch: %v\n", args)
+			return
+		}
+	case <-time.After(2 * time.Second):
+		reply.Err = ErrWrongLeader
+		kv.DebugPrint("Unsuccess because of timeout: %v\n", args)
+		return
+	}
+
 }
 
 //
@@ -47,6 +161,72 @@ func (kv *ShardKV) Kill() {
 	// Your code here, if desired.
 }
 
+func (kv *ShardKV) receiveApplyMsg() {
+	for {
+		applyMsg := <-kv.applyCh
+		kv.DebugPrint("Received applyMsg %v. \n", applyMsg)
+
+		if applyMsg.SnapshotValid {
+			kv.DebugPrint("Trying to install snapshot...\n")
+			go func() {
+				if kv.rf.CondInstallSnapshot(applyMsg.SnapshotTerm, applyMsg.SnapshotIndex, applyMsg.Snapshot) {
+					kv.DebugPrint("Raft install successfully.\n")
+					kv.recover(applyMsg.Snapshot)
+				} else {
+					kv.DebugPrint("Raft install Failed.\n")
+
+				}
+			}()
+			continue
+		}
+
+		if applyMsg.CommandValid {
+			if applyMsg.CommandIndex <= 0 {
+				continue
+			}
+			command := applyMsg.Command.(Op)
+			idx := applyMsg.CommandIndex
+
+			kv.mu.Lock()
+			if command.Operation == "Get" {
+				command.Value = kv.Data[command.Key]
+			} else {
+				lastApplied, isExist := kv.LastApplied[command.ClientId]
+				if !isExist || lastApplied < command.SeqNum {
+					if command.Operation == "Put" {
+						kv.Data[command.Key] = command.Value
+					} else if command.Operation == "Append" {
+						kv.Data[command.Key] += command.Value
+					}
+
+					kv.LastApplied[command.ClientId] = command.SeqNum
+				}
+			}
+			channel, isExist := kv.Channels[idx]
+			if !isExist {
+				channel = make(chan Op, 1)
+				kv.Channels[idx] = channel
+			}
+			channel <- command
+
+			// Check if need snapshot
+			if kv.maxraftstate >= 0 && float32(kv.rf.GetPersisterStateSize()) > float32(kv.maxraftstate)*.8 {
+				kv.DebugPrint("Need snapshot! maxraftstate:%v, currentSize: %v. currentData: %v\n", kv.maxraftstate, kv.rf.GetPersisterStateSize(), kv.Data)
+
+				w := new(bytes.Buffer)
+				e := labgob.NewEncoder(w)
+				e.Encode(kv.Data)
+				e.Encode(kv.LastApplied)
+				snapshot := w.Bytes()
+				kv.rf.Snapshot(applyMsg.CommandIndex, snapshot)
+			}
+			kv.mu.Unlock()
+
+		}
+
+		// time.Sleep(time.Millisecond * 100)
+	}
+}
 
 //
 // servers[] contains the ports of the servers in this group.
@@ -94,8 +274,36 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	// kv.mck = shardctrler.MakeClerk(kv.ctrlers)
 
 	kv.applyCh = make(chan raft.ApplyMsg)
+
+	kv.Data = make(map[string]string)
+	kv.Channels = make(map[int]chan Op)
+	kv.LastApplied = make(map[int]int)
+	kv.recover(persister.ReadSnapshot())
+
+	go kv.receiveApplyMsg()
+
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
-
 	return kv
+}
+
+func (kv *ShardKV) recover(snapshot []byte) {
+	kv.mu.Lock()
+	defer kv.mu.Unlock()
+
+	data := make(map[string]string)
+	lastApplied := make(map[int]int)
+
+	r := bytes.NewBuffer(snapshot)
+	d := labgob.NewDecoder(r)
+	d.Decode(&data)
+	d.Decode(&lastApplied)
+
+	kv.DebugPrint("Enter recover.\n")
+	// fmt.Println(data)
+	// fmt.Println(lastApplied)
+
+	kv.Data = data
+	kv.LastApplied = lastApplied
+
 }
