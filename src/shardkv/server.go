@@ -9,6 +9,7 @@ import (
 	"6.824/labgob"
 	"6.824/labrpc"
 	"6.824/raft"
+	"6.824/shardctrler"
 )
 
 type Op struct {
@@ -35,12 +36,17 @@ type ShardKV struct {
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
+
 	Data        map[string]string
 	Channels    map[int]chan Op
 	LastApplied map[int]int
+	mck         *shardctrler.Clerk
+	config      shardctrler.Config
 }
 
 var DEBUG = false
+
+// var DEBUG = true
 
 func (kv *ShardKV) DebugPrint(format string, a ...interface{}) {
 	// DEBUG PRINT
@@ -52,10 +58,36 @@ func (kv *ShardKV) DebugPrint(format string, a ...interface{}) {
 	}
 }
 
+func CopyConfig(old *shardctrler.Config, new *shardctrler.Config) {
+	// Copy the config from old to new.
+	new.Num = old.Num
+	new.Groups = make(map[int][]string, 0)
+	for i, gid := range old.Shards {
+		new.Shards[i] = gid
+	}
+	for gid, servers := range old.Groups {
+		new_servers := make([]string, 0)
+		for _, server := range servers {
+			new_servers = append(new_servers, server)
+		}
+		new.Groups[gid] = new_servers
+	}
+}
+
 func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
 
 	kv.DebugPrint("Received GET from client: %v\n", args)
+
+	kv.mu.Lock()
+	target := kv.config.Shards[key2shard(args.Key)]
+	me := kv.gid
+	kv.mu.Unlock()
+	if target != me {
+		kv.DebugPrint("ErrWrongGroup: me %v Expected %v. %v\n", me, target, kv.config)
+		reply.Err = ErrWrongGroup
+		return
+	}
 
 	command := Op{
 		Operation: "Get",
@@ -105,6 +137,17 @@ func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
 
 func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
+	kv.DebugPrint("Received PutAppend from client: %v\n", args)
+
+	kv.mu.Lock()
+	target := kv.config.Shards[key2shard(args.Key)]
+	me := kv.gid
+	kv.mu.Unlock()
+	if target != me {
+		kv.DebugPrint("ErrWrongGroup: me %v Expected %v. %v\n", me, target, kv.config)
+		reply.Err = ErrWrongGroup
+		return
+	}
 
 	command := Op{
 		Operation: args.Op,
@@ -228,6 +271,30 @@ func (kv *ShardKV) receiveApplyMsg() {
 	}
 }
 
+func (kv *ShardKV) pollConfig() {
+	for {
+		// _, isLeader := kv.rf.GetState()
+		if true {
+			// kv.DebugPrint("PollConfig triggered!\n")
+			latest_config := kv.mck.Query(-1)
+			if kv.config.Num != latest_config.Num {
+				kv.DebugPrint("New config arrived! Updating... %v\n", latest_config)
+
+				var new_config shardctrler.Config
+
+				CopyConfig(&latest_config, &new_config)
+
+				kv.mu.Lock()
+				kv.config = new_config
+				kv.mu.Unlock()
+				kv.DebugPrint("Updated! %v\n", kv.config)
+
+			}
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
 //
 // servers[] contains the ports of the servers in this group.
 //
@@ -271,18 +338,21 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister,
 	// Your initialization code here.
 
 	// Use something like this to talk to the shardctrler:
-	// kv.mck = shardctrler.MakeClerk(kv.ctrlers)
-
+	kv.mck = shardctrler.MakeClerk(kv.ctrlers)
 	kv.applyCh = make(chan raft.ApplyMsg)
 
 	kv.Data = make(map[string]string)
 	kv.Channels = make(map[int]chan Op)
 	kv.LastApplied = make(map[int]int)
+	kv.config = shardctrler.Config{
+		Num: 0,
+	}
 	kv.recover(persister.ReadSnapshot())
 
 	go kv.receiveApplyMsg()
 
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
+	go kv.pollConfig()
 
 	return kv
 }

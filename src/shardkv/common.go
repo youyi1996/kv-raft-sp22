@@ -48,3 +48,16 @@ type GetReply struct {
 	Value    string
 	ServerId int // For debug purpose
 }
+
+type MoveArgs struct {
+	Shard int
+	Num   int
+}
+
+type MoveReply struct {
+	Err         Err
+	Shard       int
+	Num         int
+	Data        map[string]string
+	LastApplied map[int]int
+}
